@@ -1,0 +1,64 @@
+{
+  "attractions_culture": {
+    "id": "attractions_culture",
+    "name": "Attractions & Culture",
+    "icon": "Landmark",
+    "subcategories": [
+      { "id": "tourist_attraction", "name": "Tourist Attractions", "google_types": ["tourist_attraction"] },
+      { "id": "historical_monument", "name": "Historical Monuments", "google_types": ["historical_landmark", "monument"] },
+      { "id": "museum", "name": "Museums", "google_types": ["museum"] },
+      { "id": "art_gallery", "name": "Art Galleries", "google_types": ["art_gallery"] },
+      { "id": "cultural_venue", "name": "Cultural Venues", "google_types": ["cultural_center"] },
+      { "id": "temple_shrine", "name": "Temples & Shrines", "google_types": ["hindu_temple", "place_of_worship", "church", "mosque"] },
+      { "id": "architectural_landmark", "name": "Architectural Landmarks", "google_types": ["historical_landmark"] }
+    ]
+  },
+  "nature_outdoors": {
+    "id": "nature_outdoors",
+    "name": "Nature & Outdoors",
+    "icon": "Trees",
+    "subcategories": [
+      { "id": "park", "name": "Parks", "google_types": ["park"] },
+      { "id": "garden", "name": "Gardens", "google_types": ["botanical_garden", "park"] },
+      { "id": "lake", "name": "Lakes & Waterfronts", "google_types": ["natural_feature"] },
+      { "id": "viewpoint", "name": "Viewpoints & Scenic Spots", "google_types": ["tourist_attraction"] },
+      { "id": "hiking_area", "name": "Hiking Areas", "google_types": ["hiking_area", "park"] },
+      { "id": "nature_reserve", "name": "Nature Reserves", "google_types": ["national_park", "park"] }
+    ]
+  },
+  "food_drink": {
+    "id": "food_drink",
+    "name": "Food & Drink",
+    "icon": "Utensils",
+    "subcategories": [
+      { "id": "restaurant", "name": "Restaurants", "google_types": ["restaurant"] },
+      { "id": "cafe", "name": "Cafés & Coffee", "google_types": ["cafe", "coffee_shop"] },
+      { "id": "street_food", "name": "Street Food & Night Markets", "google_types": ["meal_takeaway", "food_court"] },
+      { "id": "bakery_dessert", "name": "Bakeries & Desserts", "google_types": ["bakery"] },
+      { "id": "tea_house", "name": "Traditional Tea Houses", "google_types": ["cafe", "tea_house"] },
+      { "id": "nightlife", "name": "Bars & Nightlife", "google_types": ["bar", "night_club"] }
+    ]
+  },
+  "shopping_entertainment": {
+    "id": "shopping_entertainment",
+    "name": "Shopping & Entertainment",
+    "icon": "ShoppingBag",
+    "subcategories": [
+      { "id": "local_market", "name": "Local Markets & Bazaars", "google_types": ["market", "shopping_mall"] },
+      { "id": "shopping_mall", "name": "Shopping Malls", "google_types": ["shopping_mall"] },
+      { "id": "shopping_street", "name": "Shopping Streets", "google_types": ["shopping_mall", "store"] },
+      { "id": "entertainment_venue", "name": "Entertainment & Gaming", "google_types": ["amusement_center", "movie_theater"] }
+    ]
+  },
+  "leisure_wellness": {
+    "id": "leisure_wellness",
+    "name": "Leisure & Wellness",
+    "icon": "Sparkles",
+    "subcategories": [
+      { "id": "wellness_spa", "name": "Wellness & Onsen / Spas", "google_types": ["spa"] },
+      { "id": "resort_stay", "name": "Resorts & Stays", "google_types": ["lodging", "resort_hotel"] },
+      { "id": "family_activity", "name": "Family Activity Centres", "google_types": ["amusement_park", "zoo", "aquarium"] },
+      { "id": "library_coworking", "name": "Libraries & Quiet Spaces", "google_types": ["library"] }
+    ]
+  }
+}

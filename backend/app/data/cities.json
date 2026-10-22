@@ -1,0 +1,95 @@
+{
+  "hyderabad": {
+    "id": "hyderabad",
+    "name": "Hyderabad",
+    "country": "India",
+    "country_code": "IN",
+    "primary_language": "English, Telugu, Urdu, Hindi",
+    "currency": "INR",
+    "currency_symbol": "₹",
+    "timezone": "Asia/Kolkata",
+    "coordinates": {
+      "latitude": 17.385044,
+      "longitude": 78.486671
+    },
+    "search_radius_meters": 25000,
+    "popular_neighborhoods": [
+      "Old City",
+      "Banjara Hills",
+      "Jubilee Hills",
+      "Gachibowli",
+      "Hitec City",
+      "Secunderabad"
+    ]
+  },
+  "bengaluru": {
+    "id": "bengaluru",
+    "name": "Bengaluru",
+    "country": "India",
+    "country_code": "IN",
+    "primary_language": "English, Kannada, Hindi",
+    "currency": "INR",
+    "currency_symbol": "₹",
+    "timezone": "Asia/Kolkata",
+    "coordinates": {
+      "latitude": 12.971598,
+      "longitude": 77.594562
+    },
+    "search_radius_meters": 25000,
+    "popular_neighborhoods": [
+      "Indiranagar",
+      "Koramangala",
+      "Whitefield",
+      "Jayanagar",
+      "Malleswaram",
+      "MG Road"
+    ]
+  },
+  "tokyo": {
+    "id": "tokyo",
+    "name": "Tokyo",
+    "country": "Japan",
+    "country_code": "JP",
+    "primary_language": "Japanese, English",
+    "currency": "JPY",
+    "currency_symbol": "¥",
+    "timezone": "Asia/Tokyo",
+    "coordinates": {
+      "latitude": 35.6761919,
+      "longitude": 139.6503106
+    },
+    "search_radius_meters": 25000,
+    "popular_neighborhoods": [
+      "Shibuya",
+      "Shinjuku",
+      "Asakusa",
+      "Ginza",
+      "Akihabara",
+      "Roppongi",
+      "Ueno"
+    ]
+  },
+  "kyoto": {
+    "id": "kyoto",
+    "name": "Kyoto",
+    "country": "Japan",
+    "country_code": "JP",
+    "primary_language": "Japanese, English",
+    "currency": "JPY",
+    "currency_symbol": "¥",
+    "timezone": "Asia/Tokyo",
+    "coordinates": {
+      "latitude": 35.0116363,
+      "longitude": 135.7680294
+    },
+    "search_radius_meters": 20000,
+    "popular_neighborhoods": [
+      "Gion",
+      "Arashiyama",
+      "Higashiyama",
+      "Fushimi",
+      "Central Kyoto",
+      "Kita-ku"
+    ]
+  }
+}

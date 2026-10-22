@@ -1,0 +1,25 @@
+{
+  "name": "wandergraph",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Intelligent Knowledge-Graph-Powered Place Discovery & AI Itinerary Recommendation Platform",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && uvicorn app.main:app --reload",
+    "test:frontend": "cd frontend && npm run test",
+    "test:backend": "cd backend && pytest"
+  },
+  "keywords": [
+    "knowledge-graph",
+    "travel-recommendation",
+    "fastapi",
+    "react",
+    "gemini",
+    "places-api",
+    "vite",
+    "tailwind"
+  ],
+  "author": "Krishna Chaitanya",
+  "license": "MIT"
+}
