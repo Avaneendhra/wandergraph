@@ -13,6 +13,40 @@ WanderGraph helps people discover places, activities, experiences, and destinati
 
 ---
 
+## 📸 Demo Screenshots
+
+### Knowledge Graph — Multi-City MultiDiGraph Visualization
+> Interactive Cytoscape.js canvas with 12 typed entity nodes, semantic directed edges, and verified data provenance across Hyderabad, Bengaluru, Tokyo, and Kyoto.
+
+![Knowledge Graph Overview](docs/demo-screenshots/knowledge-graph-overview.svg)
+
+### Ontology Schema — 12 Entity Types × 12 Relation Types
+> The typed knowledge graph schema powering intelligent place discovery — Place nodes connect to City, Neighborhood, Category, Activity, Interest, CompanionType, Atmosphere, PriceRange, TimeOfDay, Amenity, and AccessibilityFeature via directed semantic relationships.
+
+![Ontology Schema](docs/demo-screenshots/ontology-schema.svg)
+
+### Place Discovery Engine — Scored Recommendations with Provenance
+> Intelligently scored place cards with match confidence, local currency pricing (₹/¥), opening hours, explainable recommendation reasons, and data provenance tracking.
+
+![Place Discovery Cards](docs/demo-screenshots/place-discovery-cards.svg)
+
+---
+
+## 🎮 Live Interactive Demos
+
+**No backend required** — all demos run entirely in-browser with embedded mock data.
+
+| Demo | Description | Open |
+|------|-------------|------|
+| 🔗 **Knowledge Graph Explorer** | Interactive Cytoscape.js graph with CoSE/concentric/tree/circle layouts, node search, inspector panel, city filtering, and graph statistics | [`demo/knowledge-graph.html`](demo/knowledge-graph.html) |
+| 🗺️ **Place Discovery Engine** | Browse scored recommendations across 4 cities with category filters, match confidence badges, price estimates, and provenance tracking | [`demo/place-discovery.html`](demo/place-discovery.html) |
+| 🤖 **AI Itinerary Planner** | Conversational trip planner with structured timeline cards, cost estimates, replacement options, and transit feasibility notes | [`demo/itinerary-planner.html`](demo/itinerary-planner.html) |
+| 📋 **Demo Hub** | Landing page linking all demos with tech stack overview | [`demo/index.html`](demo/index.html) |
+
+> **Tip:** Open any `demo/*.html` file directly in your browser — no `npm install` or server needed!
+
+---
+
 ## Key Features
 
 1. **Floating AI Itinerary Concierge (Google Gemini 3.5 Flash-Lite)**:
@@ -40,7 +74,7 @@ WanderGraph helps people discover places, activities, experiences, and destinati
    - Transparent handling of unrecorded prices with methodology notes.
 
 6. **Typo-Tolerant & Locality-Specific Search**:
-   - Levenshtein fuzzy spelling correction (`hydrabad` $\rightarrow$ `Hyderabad`, `kioto` $\rightarrow$ `Kyoto`).
+   - Levenshtein fuzzy spelling correction (`hydrabad` → `Hyderabad`, `kioto` → `Kyoto`).
    - Micro-neighborhood extraction across all 4 cities (`Indiranagar`, `Banjara Hills`, `Gion`, `Shinjuku`).
    - Dynamic editable **Interpretation Banner** with one-click adjustments.
 
@@ -52,6 +86,32 @@ WanderGraph helps people discover places, activities, experiences, and destinati
 - 🇮🇳 **Bengaluru, India**: Botanical gardens, craft brewpubs, tech parks, and heritage palaces.
 - 🇯🇵 **Tokyo, Japan**: Historic Shinto shrines, neon avenues, shopping districts, and serene gardens.
 - 🇯🇵 **Kyoto, Japan**: UNESCO World Heritage temples, bamboo groves, and traditional tea houses.
+
+---
+
+## Knowledge Graph Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    WanderGraph MultiDiGraph                      │
+│                                                                 │
+│   ┌──────┐    LOCATED_IN    ┌──────┐    IN_NEIGHBORHOOD         │
+│   │ Place │───────────────▶│ City  │◀─────────────────┐        │
+│   └──┬───┘                 └──────┘              ┌────┴─────┐  │
+│      │                                           │Neighborhood│  │
+│      ├──── HAS_CATEGORY ────▶ [Category]         └──────────┘  │
+│      ├──── SUITABLE_FOR ────▶ [CompanionType]                   │
+│      ├──── HAS_ATMOSPHERE ──▶ [Atmosphere]                      │
+│      ├──── HAS_PRICE_RANGE ─▶ [PriceRange]                     │
+│      ├──── RECOMMENDED_FOR ─▶ [TimeOfDay] [Interest]            │
+│      ├──── SUPPORTS_ACTIVITY▶ [Activity]                        │
+│      ├──── HAS_AMENITY ─────▶ [Amenity]                         │
+│      ├──── HAS_ACCESSIBILITY▶ [AccessibilityFeature]            │
+│      └──── NEARBY_TO ◀─────▶ [Place]  (≤4km, Haversine)        │
+│                                                                 │
+│   12 Entity Types  ×  12 Relation Types  ×  4 Cities            │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -125,6 +185,50 @@ cd frontend
 npm run test
 ```
 *7 tests passing across 5 test suites.*
+
+---
+
+## Project Structure
+
+```
+wandergraph/
+├── demo/                          # 🎮 Self-contained interactive demos
+│   ├── index.html                 #    Demo hub landing page
+│   ├── knowledge-graph.html       #    Interactive Cytoscape.js graph explorer
+│   ├── place-discovery.html       #    Place cards & search UI demo
+│   └── itinerary-planner.html     #    AI itinerary chat + timeline demo
+├── docs/
+│   ├── demo-screenshots/          # 📸 Knowledge graph visualization SVGs
+│   │   ├── knowledge-graph-overview.svg
+│   │   ├── ontology-schema.svg
+│   │   └── place-discovery-cards.svg
+│   ├── figures/                   #    Architecture & metrics diagrams
+│   ├── api.md
+│   ├── architecture.md
+│   ├── data_policy.md
+│   ├── data_sources.md
+│   └── development.md
+├── backend/
+│   ├── app/
+│   │   ├── api/                   #    FastAPI routes & Pydantic schemas
+│   │   ├── data/                  #    Cities, categories, seed places JSON
+│   │   ├── graph/                 #    NetworkX MultiDiGraph builder & schema
+│   │   ├── services/              #    Places, recommendation, itinerary, price
+│   │   └── utils/                 #    Logging configuration
+│   └── tests/                     #    24 Pytest unit tests
+├── frontend/
+│   ├── src/
+│   │   ├── components/            #    React components (13 modules)
+│   │   ├── services/              #    API client with proxy URL builder
+│   │   ├── styles/                #    Tailwind CSS entry point
+│   │   └── types/                 #    TypeScript interfaces & types
+│   └── tests/                     #    7 Vitest unit tests
+├── api/                           #    Vercel serverless function entry
+├── scripts/                       #    Data generation & inspection scripts
+├── docker-compose.yml
+├── vercel.json
+└── README.md
+```
 
 ---
 

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WanderGraph — Place Discovery Demo</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #020617; color: #f1f5f9; min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      position: sticky; top: 0; z-index: 30;
+      border-bottom: 1px solid rgba(30,41,59,.8);
+      background: rgba(2,6,23,.8); backdrop-filter: blur(12px);
+    }
+    .header-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px;
+      height: 64px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .logo-box {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(99,102,241,.3); font-size: 20px;
+    }
+    .brand-text h1 { font-size: 20px; font-weight: 800; letter-spacing: -.4px; }
+    .brand-text h1 span { color: #818cf8; }
+    .brand-text p { font-size: 11px; color: #64748b; }
+    .pill { font-size: 9px; text-transform: uppercase; font-weight: 700; padding: 2px 7px; border-radius: 4px;
+      background: rgba(99,102,241,.1); border: 1px solid rgba(99,102,241,.2); color: #818cf8; letter-spacing: .6px; }
+    .nav-right { display: flex; align-items: center; gap: 8px; }
+    .city-btn {
+      display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+      border-radius: 8px; border: 1px solid #1e293b; background: #0f172a;
+      color: #e2e8f0; font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all .15s;
+    }
+    .city-btn:hover { border-color: rgba(99,102,241,.5); }
+    .status-pill {
+      display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600;
+      padding: 4px 10px; border-radius: 20px;
+      background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.25); color: #fbbf24;
+    }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #f59e0b; }
+
+    /* Hero */
+    .hero { text-align: center; max-width: 600px; margin: 0 auto; padding: 24px 20px 16px; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px;
+      border-radius: 20px; background: rgba(99,102,241,.08);
+      border: 1px solid rgba(99,102,241,.2); font-size: 11px; font-weight: 700;
+      color: #818cf8; margin-bottom: 12px;
+    }
+    .hero h2 { font-size: clamp(28px, 5vw, 44px); font-weight: 900; letter-spacing: -.5px; line-height: 1.1; }
+    .hero h2 span {
+      background: linear-gradient(135deg, #818cf8, #a855f7);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero p { font-size: 14px; color: #64748b; margin-top: 8px; line-height: 1.5; }
+
+    /* Search */
+    .search-wrap {
+      max-width: 600px; margin: 0 auto 20px; padding: 0 20px;
+    }
+    .search-box {
+      display: flex; align-items: center; border-radius: 16px;
+      background: #0f172a; border: 2px solid #1e293b; overflow: hidden;
+      transition: border-color .2s;
+    }
+    .search-box:focus-within { border-color: #6366f1; }
+    .search-box input {
+      flex: 1; padding: 14px 16px; background: transparent; border: none;
+      color: white; font-size: 14px; outline: none;
+    }
+    .search-box input::placeholder { color: #475569; }
+    .search-box button {
+      padding: 10px 20px; margin: 4px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, #6366f1, #7c3aed);
+      color: white; font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: opacity .15s;
+    }
+    .search-box button:hover { opacity: .9; }
+
+    /* Interpretation Banner */
+    .interp-banner {
+      max-width: 1200px; margin: 0 auto 16px; padding: 0 20px;
+    }
+    .interp-inner {
+      padding: 10px 14px; border-radius: 14px;
+      background: rgba(99,102,241,.06); border: 1px solid rgba(99,102,241,.2);
+      display: flex; align-items: center; gap: 8px; font-size: 12px; color: #a5b4fc;
+    }
+    .interp-inner b { color: #c7d2fe; }
+
+    /* Filter Chips */
+    .filters {
+      max-width: 1200px; margin: 0 auto 24px; padding: 0 20px;
+      display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+    }
+    .chip {
+      padding: 6px 14px; border-radius: 10px; border: 1px solid #334155;
+      background: transparent; color: #94a3b8; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all .15s;
+    }
+    .chip:hover, .chip.active {
+      background: rgba(99,102,241,.12); border-color: rgba(99,102,241,.4); color: #c7d2fe;
+    }
+
+    /* Cards Grid */
+    .cards-section {
+      max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+    }
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+    }
+    .section-header h3 { font-size: 16px; font-weight: 800; }
+    .section-header .count {
+      font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px;
+      background: #1e293b; color: #94a3b8;
+    }
+    .cards-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px;
+    }
+
+    /* Place Card */
+    .place-card {
+      border-radius: 16px; background: rgba(15,23,42,.7);
+      border: 1px solid rgba(30,41,59,.8); overflow: hidden;
+      transition: all .2s; display: flex; flex-direction: column;
+    }
+    .place-card:hover { border-color: rgba(99,102,241,.45); background: rgba(15,23,42,.9); }
+    .card-img {
+      height: 176px; position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card-img .gradient-bg {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .card-img .gradient-bg .emoji { font-size: 40px; margin-bottom: 4px; }
+    .card-img .gradient-bg .cat-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.6); }
+    .card-badges {
+      position: absolute; top: 10px; left: 10px; right: 10px;
+      display: flex; align-items: center; justify-content: space-between; pointer-events: none;
+    }
+    .type-tag {
+      font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px;
+      color: white; background: rgba(2,6,23,.8); backdrop-filter: blur(8px);
+      border: 1px solid rgba(100,116,139,.4); padding: 3px 8px; border-radius: 5px;
+    }
+    .badge-right { display: flex; gap: 5px; }
+    .match-badge {
+      font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 20px;
+      backdrop-filter: blur(8px);
+    }
+    .match-badge.high { background: rgba(6,78,59,.8); color: #6ee7b7; border: 1px solid rgba(16,185,129,.4); }
+    .match-badge.moderate { background: rgba(49,46,129,.8); color: #a5b4fc; border: 1px solid rgba(99,102,241,.4); }
+    .rating-badge {
+      display: flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 800;
+      color: #fcd34d; background: rgba(2,6,23,.8); backdrop-filter: blur(8px);
+      border: 1px solid rgba(245,158,11,.3); padding: 3px 8px; border-radius: 20px;
+    }
+    .card-body { padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .card-location {
+      display: flex; align-items: center; gap: 5px; font-size: 11px; color: #64748b; margin-bottom: 4px;
+    }
+    .card-location .loc-pin { color: #818cf8; }
+    .card-location .loc-area { color: #818cf8; font-weight: 700; }
+    .card-title { font-size: 15px; font-weight: 800; color: white; margin-bottom: 8px; }
+
+    .price-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 10px; border-radius: 10px; background: rgba(2,6,23,.5);
+      border: 1px solid rgba(30,41,59,.6); font-size: 11px; margin-bottom: 8px;
+    }
+    .price-bar .price { display: flex; align-items: center; gap: 5px; }
+    .price-bar .price-text { color: #34d399; font-weight: 700; }
+    .price-bar .hours { color: #64748b; display: flex; align-items: center; gap: 3px; }
+
+    .explanation-box {
+      padding: 8px 10px; border-radius: 10px;
+      background: rgba(49,46,129,.15); border: 1px solid rgba(99,102,241,.15);
+      font-size: 11px; color: #a5b4fc; line-height: 1.4; margin-bottom: 6px;
+    }
+    .match-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+    .match-tag {
+      font-size: 9px; font-weight: 600; color: #6ee7b7; padding: 2px 6px;
+      border-radius: 4px; background: rgba(6,78,59,.5); border: 1px solid rgba(16,185,129,.25);
+    }
+
+    .card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 8px; border-top: 1px solid rgba(30,41,59,.5); margin-top: 8px;
+    }
+    .provenance { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #64748b; }
+    .provenance .shield { color: #818cf8; }
+    .card-actions { display: flex; gap: 5px; }
+    .card-actions button {
+      padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 600;
+      border: none; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 4px;
+    }
+    .btn-graph {
+      background: rgba(49,46,129,.5); border: 1px solid rgba(99,102,241,.4);
+      color: #a5b4fc;
+    }
+    .btn-graph:hover { background: rgba(67,56,202,.5); }
+    .btn-details { background: #1e293b; color: #e2e8f0; }
+    .btn-details:hover { background: #334155; }
+
+    /* Conversational Bar */
+    .conv-bar {
+      max-width: 600px; margin: 20px auto 0; padding: 0 20px 40px;
+    }
+    .conv-inner {
+      display: flex; align-items: center; border-radius: 16px;
+      background: #0f172a; border: 1px solid #1e293b; overflow: hidden;
+    }
+    .conv-inner input {
+      flex: 1; padding: 12px 16px; background: transparent; border: none;
+      color: white; font-size: 13px; outline: none;
+    }
+    .conv-inner input::placeholder { color: #334155; }
+    .conv-inner button {
+      padding: 8px 16px; margin: 4px; border-radius: 10px; border: none;
+      background: #6366f1; color: white; font-weight: 700; font-size: 12px; cursor: pointer;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid rgba(30,41,59,.6); padding: 24px; text-align: center;
+      font-size: 11px; color: #475569; margin-top: 40px;
+    }
+    footer p:last-child { font-size: 10px; color: #334155; margin-top: 4px; }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .status-pill { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="logo-box">🧭</div>
+        <div class="brand-text">
+          <h1>Wander<span>Graph</span></h1>
+          <p>Intelligent Knowledge-Graph Discovery</p>
+        </div>
+        <span class="pill">KG AI</span>
+      </div>
+      <div class="nav-right">
+        <button class="city-btn" onclick="cycleCity()">
+          📍 <span id="cityName">Hyderabad</span> <small style="color:#64748b; font-size:10px; background:#1e293b; padding:2px 6px; border-radius:4px;">Change</small>
+        </button>
+        <a href="knowledge-graph.html" class="city-btn" style="text-decoration:none;color:#818cf8;">
+          🔗 Graph Explorer
+        </a>
+        <div class="status-pill">
+          <div class="status-dot"></div> Demo Mode (Mock Data)
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-tag">✨ MultiDiGraph Powered Place Intelligence</div>
+    <h2>Discover <span id="heroCity">Hyderabad</span></h2>
+    <p>Tailor experiences, companions, atmosphere, and budgets through progressive conversational refinement.</p>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <div class="search-box">
+      <input type="text" placeholder="Search temples, cafes, nightlife in Hyderabad..." id="searchInput" />
+      <button onclick="filterCards()">Search</button>
+    </div>
+  </div>
+
+  <!-- Interpretation Banner -->
+  <div class="interp-banner">
+    <div class="interp-inner">
+      🔍 <span>Smart interpretation: Showing <b>popular places</b> across all categories in <b id="interpCity">Hyderabad</b></span>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters" id="filterChips">
+    <button class="chip active" data-cat="all">All</button>
+    <button class="chip" data-cat="monument">🏛️ Monuments</button>
+    <button class="chip" data-cat="temple">⛩️ Temples</button>
+    <button class="chip" data-cat="park">🌳 Parks</button>
+    <button class="chip" data-cat="food">🍜 Food</button>
+    <button class="chip" data-cat="nightlife">🍻 Nightlife</button>
+    <button class="chip" data-cat="shopping">🛍️ Shopping</button>
+    <button class="chip" data-cat="museum">🖼️ Museums</button>
+  </div>
+
+  <!-- Cards Section -->
+  <div class="cards-section">
+    <div class="section-header">
+      <h3>Recommendations in <span id="recCity">Hyderabad</span></h3>
+      <span class="count" id="resultCount">6 loaded</span>
+    </div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </div>
+
+  <!-- Conversational Bar -->
+  <div class="conv-bar">
+    <div class="conv-inner">
+      <input type="text" placeholder="Refine: 'romantic spots under ₹500 for couples'" />
+      <button>Send</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>WanderGraph © 2026 — Intelligent Knowledge-Graph Discovery Engine</p>
+    <p>Compliant with Google Maps Platform Terms of Service & Open Data Licences. Zero restricted caching.</p>
+  </footer>
+
+<script>
+const PLACES_DATA = {
+  hyderabad: [
+    { name: 'Charminar', area: 'Old City', type: 'historical monument', cat: 'monument', rating: 4.5, reviews: '142K', price: '₹50', hours: '09:30 – 17:30', match: 'high', emoji: '🕌', bg: 'linear-gradient(135deg,#312e81,#1e1b4b)', explanation: 'Top-rated heritage monument matching history & photography interests in the Old City.', tags: ['History Match','Photography Spot','Cultural Heritage'], provenance: 'Google Places (New) API' },
+    { name: 'Golconda Fort', area: 'Golconda', type: 'historical monument', cat: 'monument', rating: 4.6, reviews: '98K', price: '₹100', hours: '09:00 – 17:30', match: 'high', emoji: '🏰', bg: 'linear-gradient(135deg,#1e3a5f,#0f172a)', explanation: 'Iconic fortification with panoramic views and acoustics hall. Perfect for families.', tags: ['Scenic Views','Family Friendly','Historic'], provenance: 'Google Places (New) API' },
+    { name: 'Hussain Sagar Lake', area: 'Tank Bund', type: 'lake & waterfront', cat: 'park', rating: 4.3, reviews: '67K', price: 'Free', hours: 'Open 24h', match: 'moderate', emoji: '🌅', bg: 'linear-gradient(135deg,#064e3b,#022c22)', explanation: 'Romantic lakeside promenade with boating. Ideal for evening visits with a partner.', tags: ['Romantic','Scenic','Free Entry'], provenance: 'WanderGraph Seed' },
+    { name: 'Salar Jung Museum', area: 'Old City', type: 'museum', cat: 'museum', rating: 4.5, reviews: '41K', price: '₹50', hours: '10:00 – 17:00', match: 'high', emoji: '🖼️', bg: 'linear-gradient(135deg,#312e81,#1e1b4b)', explanation: 'One of the largest one-man collections in the world. Art, sculptures, and rare manuscripts.', tags: ['Art Collection','World Heritage','History'], provenance: 'Google Places (New) API' },
+    { name: 'Paradise Biryani', area: 'Secunderabad', type: 'restaurant', cat: 'food', rating: 4.2, reviews: '180K', price: '₹400', hours: '11:00 – 23:00', match: 'moderate', emoji: '🍛', bg: 'linear-gradient(135deg,#78350f,#451a03)', explanation: 'Legendary Hyderabadi biryani destination. A must-try culinary experience.', tags: ['Iconic Cuisine','Budget Dining','Food Interest'], provenance: 'Google Places (New) API' },
+    { name: 'Ramoji Film City', area: 'Hayathnagar', type: 'entertainment', cat: 'monument', rating: 4.3, reviews: '88K', price: '₹1,500', hours: '09:00 – 17:30', match: 'moderate', emoji: '🎬', bg: 'linear-gradient(135deg,#4c1d95,#2e1065)', explanation: 'World\'s largest integrated film city. Theme parks, studios, and live shows.', tags: ['Entertainment','Family Fun','Full Day'], provenance: 'Google Places (New) API' },
+  ],
+  bengaluru: [
+    { name: 'Cubbon Park', area: 'MG Road', type: 'park', cat: 'park', rating: 4.5, reviews: '72K', price: 'Free', hours: '06:00 – 18:00', match: 'high', emoji: '🌳', bg: 'linear-gradient(135deg,#064e3b,#022c22)', explanation: 'Sprawling green oasis in the city center. Perfect for morning walks and solo contemplation.', tags: ['Nature','Free Entry','Peaceful'], provenance: 'Google Places (New) API' },
+    { name: 'Lalbagh Botanical Garden', area: 'Lalbagh', type: 'park', cat: 'park', rating: 4.5, reviews: '63K', price: '₹30', hours: '06:00 – 19:00', match: 'high', emoji: '🌺', bg: 'linear-gradient(135deg,#064e3b,#022c22)', explanation: 'Historic botanical garden with the iconic Glass House. Flower shows twice a year.', tags: ['Nature','Photography','Budget'], provenance: 'Google Places (New) API' },
+    { name: 'Bangalore Palace', area: 'Palace Grounds', type: 'historical monument', cat: 'monument', rating: 4.2, reviews: '28K', price: '₹230', hours: '10:00 – 17:30', match: 'moderate', emoji: '🏰', bg: 'linear-gradient(135deg,#312e81,#1e1b4b)', explanation: 'Tudor-style palace inspired by Windsor Castle. Beautiful woodwork and art collection.', tags: ['Architecture','Heritage','Cultural'], provenance: 'Google Places (New) API' },
+    { name: 'Vidhan Soudha', area: 'MG Road', type: 'landmark', cat: 'monument', rating: 4.4, reviews: '19K', price: 'Free', hours: 'Exterior only', match: 'moderate', emoji: '🏛️', bg: 'linear-gradient(135deg,#1e3a5f,#0f172a)', explanation: 'Neo-Dravidian legislative building. Stunning illumination at night.', tags: ['Architecture','Free Entry','Night View'], provenance: 'WanderGraph Seed' },
+    { name: 'Toit Brewpub', area: 'Indiranagar', type: 'brewpub', cat: 'nightlife', rating: 4.4, reviews: '34K', price: '₹1,200', hours: '12:00 – 01:00', match: 'high', emoji: '🍺', bg: 'linear-gradient(135deg,#4c1d95,#2e1065)', explanation: 'Iconic craft beer destination. 7 house brews on tap and great pub food.', tags: ['Craft Beer','Friends','Lively'], provenance: 'Google Places (New) API' },
+  ],
+  tokyo: [
+    { name: 'Sensō-ji Temple', area: 'Asakusa', type: 'temple', cat: 'temple', rating: 4.6, reviews: '210K', price: 'Free', hours: '06:00 – 17:00', match: 'high', emoji: '⛩️', bg: 'linear-gradient(135deg,#7f1d1d,#450a0a)', explanation: 'Tokyo\'s oldest temple with the iconic Kaminarimon gate. A spiritual and cultural must-visit.', tags: ['Spiritual','Free Entry','Cultural'], provenance: 'Google Places (New) API' },
+    { name: 'Shibuya Crossing', area: 'Shibuya', type: 'landmark', cat: 'monument', rating: 4.4, reviews: '145K', price: 'Free', hours: 'Open 24h', match: 'high', emoji: '🏙️', bg: 'linear-gradient(135deg,#1e3a5f,#0f172a)', explanation: 'World\'s busiest pedestrian crossing. Quintessential Tokyo experience, especially at night.', tags: ['Iconic','Photography','Futuristic'], provenance: 'Google Places (New) API' },
+    { name: 'Meiji Shrine', area: 'Harajuku', type: 'shrine', cat: 'temple', rating: 4.7, reviews: '95K', price: 'Free', hours: 'Sunrise – Sunset', match: 'high', emoji: '🌿', bg: 'linear-gradient(135deg,#064e3b,#022c22)', explanation: 'Serene Shinto shrine in a 170-acre forest. A peaceful escape in the heart of Tokyo.', tags: ['Peaceful','Spiritual','Nature'], provenance: 'Google Places (New) API' },
+    { name: 'Tokyo Tower', area: 'Minato', type: 'observation tower', cat: 'monument', rating: 4.5, reviews: '78K', price: '¥1,200', hours: '09:00 – 23:00', match: 'moderate', emoji: '🗼', bg: 'linear-gradient(135deg,#78350f,#451a03)', explanation: 'Iconic lattice tower with panoramic city views. Spectacular at sunset.', tags: ['Scenic','Night Views','Iconic'], provenance: 'Google Places (New) API' },
+    { name: 'Akihabara Electric Town', area: 'Akihabara', type: 'shopping district', cat: 'shopping', rating: 4.3, reviews: '52K', price: 'Free', hours: '10:00 – 21:00', match: 'moderate', emoji: '🎮', bg: 'linear-gradient(135deg,#4c1d95,#2e1065)', explanation: 'Otaku paradise: anime, manga, electronics, and maid cafes.', tags: ['Tech','Shopping','Pop Culture'], provenance: 'Google Places (New) API' },
+    { name: 'Ueno Park', area: 'Ueno', type: 'park', cat: 'park', rating: 4.5, reviews: '67K', price: 'Free', hours: '05:00 – 23:00', match: 'moderate', emoji: '🌸', bg: 'linear-gradient(135deg,#831843,#500724)', explanation: 'Expansive park famous for cherry blossoms. Home to multiple museums and a zoo.', tags: ['Nature','Cherry Blossoms','Museums'], provenance: 'Google Places (New) API' },
+  ],
+  kyoto: [
+    { name: 'Kinkaku-ji (Golden Pavilion)', area: 'Kita-ku', type: 'temple', cat: 'temple', rating: 4.7, reviews: '115K', price: '¥500', hours: '09:00 – 17:00', match: 'high', emoji: '🏯', bg: 'linear-gradient(135deg,#78350f,#451a03)', explanation: 'Stunning golden Zen temple reflecting on a mirror pond. UNESCO World Heritage site.', tags: ['Zen','Architecture','UNESCO'], provenance: 'Google Places (New) API' },
+    { name: 'Fushimi Inari Shrine', area: 'Fushimi', type: 'shrine', cat: 'temple', rating: 4.8, reviews: '190K', price: 'Free', hours: 'Open 24h', match: 'high', emoji: '⛩️', bg: 'linear-gradient(135deg,#7f1d1d,#450a0a)', explanation: 'Thousands of vermillion torii gates winding up the mountain. Most visited shrine in Japan.', tags: ['Spiritual','Photography','Free Entry'], provenance: 'Google Places (New) API' },
+    { name: 'Arashiyama Bamboo Grove', area: 'Arashiyama', type: 'natural landmark', cat: 'park', rating: 4.5, reviews: '88K', price: 'Free', hours: 'Open 24h', match: 'high', emoji: '🎋', bg: 'linear-gradient(135deg,#064e3b,#022c22)', explanation: 'Ethereal bamboo forest path. Best visited early morning for the serene atmosphere.', tags: ['Zen','Nature','Photography'], provenance: 'Google Places (New) API' },
+    { name: 'Kiyomizu-dera Temple', area: 'Higashiyama', type: 'temple', cat: 'temple', rating: 4.6, reviews: '102K', price: '¥400', hours: '06:00 – 18:00', match: 'high', emoji: '🏯', bg: 'linear-gradient(135deg,#7f1d1d,#450a0a)', explanation: 'Hillside temple with a famous wooden stage offering breathtaking views of Kyoto.', tags: ['Scenic','Heritage','Spiritual'], provenance: 'Google Places (New) API' },
+    { name: 'Nijō Castle', area: 'Central Kyoto', type: 'castle', cat: 'monument', rating: 4.5, reviews: '45K', price: '¥800', hours: '08:45 – 17:00', match: 'moderate', emoji: '🏰', bg: 'linear-gradient(135deg,#312e81,#1e1b4b)', explanation: 'Edo-period castle with "nightingale floors" and stunning gardens. UNESCO World Heritage.', tags: ['History','Architecture','UNESCO'], provenance: 'Google Places (New) API' },
+  ],
+};
+
+const CITIES = ['hyderabad', 'bengaluru', 'tokyo', 'kyoto'];
+const CITY_LABELS = { hyderabad: 'Hyderabad', bengaluru: 'Bengaluru', tokyo: 'Tokyo', kyoto: 'Kyoto' };
+let currentCityIdx = 0;
+let currentCat = 'all';
+
+function cycleCity() {
+  currentCityIdx = (currentCityIdx + 1) % CITIES.length;
+  renderAll();
+}
+
+function renderAll() {
+  const city = CITIES[currentCityIdx];
+  const label = CITY_LABELS[city];
+  document.getElementById('cityName').textContent = label;
+  document.getElementById('heroCity').textContent = label;
+  document.getElementById('interpCity').textContent = label;
+  document.getElementById('recCity').textContent = label;
+  renderCards();
+}
+
+function renderCards() {
+  const city = CITIES[currentCityIdx];
+  let places = PLACES_DATA[city] || [];
+  if (currentCat !== 'all') places = places.filter(p => p.cat === currentCat);
+
+  document.getElementById('resultCount').textContent = `${places.length} loaded`;
+  const grid = document.getElementById('cardsGrid');
+  grid.innerHTML = '';
+
+  places.forEach(p => {
+    grid.innerHTML += `
+    <div class="place-card">
+      <div class="card-img">
+        <div class="gradient-bg" style="background:${p.bg}">
+          <span class="emoji">${p.emoji}</span>
+          <span class="cat-label">${p.type.toUpperCase()}</span>
+        </div>
+        <div class="card-badges">
+          <span class="type-tag">${p.type}</span>
+          <div class="badge-right">
+            <span class="match-badge ${p.match}">${p.match.toUpperCase()} MATCH</span>
+            <span class="rating-badge">★ ${p.rating.toFixed(1)}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="card-location">
+            <span class="loc-pin">📍</span>
+            <span class="loc-area">${p.area}</span>, ${CITY_LABELS[CITIES[currentCityIdx]].toUpperCase()}
+          </div>
+          <div class="card-title">${p.name}</div>
+          <div class="price-bar">
+            <div class="price">💰 <span class="price-text">${p.price === 'Free' ? 'Free Admission' : p.price}</span></div>
+            <div class="hours">🕐 ${p.hours}</div>
+          </div>
+          <div class="explanation-box">
+            ℹ️ ${p.explanation}
+            <div class="match-tags">
+              ${p.tags.map(t => `<span class="match-tag">✓ ${t}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="provenance"><span class="shield">🛡️</span> ${p.provenance}</div>
+          <div class="card-actions">
+            <button class="btn-graph" onclick="window.open('knowledge-graph.html','_blank')">🔗 Graph</button>
+            <button class="btn-details">Details →</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+}
+
+function filterCards() {
+  renderCards();
+}
+
+// Filter chip clicks
+document.querySelectorAll('#filterChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#filterChips .chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    currentCat = chip.dataset.cat;
+    renderCards();
+  });
+});
+
+// Init
+renderAll();
+</script>
+</body>
+</html>
+

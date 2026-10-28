@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600">
+  <defs>
+    <radialGradient id="bg2" cx="50%" cy="50%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </radialGradient>
+    <filter id="glow2">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="600" fill="url(#bg2)"/>
+
+  <!-- Title -->
+  <text x="600" y="40" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="20" font-weight="900">WanderGraph Ontology — 12 Entity Types × 12 Relation Types</text>
+  <text x="600" y="58" text-anchor="middle" fill="#64748b" font-family="Inter,sans-serif" font-size="11">Typed Knowledge Graph Schema powering intelligent place discovery across 4 cities</text>
+
+  <!-- Central Place Node -->
+  <g filter="url(#glow2)">
+    <circle cx="600" cy="300" r="40" fill="#6366F1" stroke="#a5b4fc" stroke-width="2.5"/>
+    <text x="600" y="296" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="14" font-weight="900">Place</text>
+    <text x="600" y="312" text-anchor="middle" fill="#c7d2fe" font-family="Inter,sans-serif" font-size="9" font-weight="600">(Central Entity)</text>
+  </g>
+
+  <!-- Surrounding Entity Nodes -->
+  <!-- City (top-left) -->
+  <circle cx="300" cy="160" r="28" fill="#EC4899" stroke="#f9a8d4" stroke-width="2" filter="url(#glow2)"/>
+  <text x="300" y="164" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="11" font-weight="800">City</text>
+  <line x1="560" y1="275" x2="330" y2="175" stroke="#EC4899" stroke-width="1.5" opacity=".5" marker-end="url(#arrowPink)"/>
+  <text x="430" y="215" text-anchor="middle" fill="#f9a8d4" font-family="Inter,sans-serif" font-size="9" font-weight="700" transform="rotate(-24,430,215)">LOCATED_IN</text>
+
+  <!-- Neighborhood (top) -->
+  <circle cx="500" cy="110" r="24" fill="#14B8A6" stroke="#5eead4" stroke-width="1.5" filter="url(#glow2)"/>
+  <text x="500" y="100" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="10" font-weight="800">Neigh-</text>
+  <text x="500" y="114" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="10" font-weight="800">borhood</text>
+  <line x1="575" y1="265" x2="520" y2="135" stroke="#14B8A6" stroke-width="1.5" opacity=".5"/>
+  <text x="535" y="195" text-anchor="middle" fill="#5eead4" font-family="Inter,sans-serif" font-size="9" font-weight="700" transform="rotate(-68,535,195)">IN_NEIGHBORHOOD</text>
+
+  <!-- Category (top-right) -->
+  <circle cx="780" cy="120" r="26" fill="#10B981" stroke="#34d399" stroke-width="1.5" filter="url(#glow2)"/>
+  <text x="780" y="124" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="10" font-weight="800">Category</text>
+  <line x1="635" y1="270" x2="755" y2="140" stroke="#10B981" stroke-width="1.5" opacity=".5"/>
+  <text x="705" y="195" text-anchor="middle" fill="#34d399" font-family="Inter,sans-serif" font-size="9" font-weight="700" transform="rotate(42,705,195)">HAS_CATEGORY</text>
+
+  <!-- CompanionType (right) -->
+  <circle cx="920" cy="220" r="26" fill="#F59E0B" stroke="#fbbf24" stroke-width="1.5" filter="url(#glow2)"/>
+  <text x="920" y="214" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="9" font-weight="800">Companion</text>
+  <text x="920" y="228" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="9" font-weight="800">Type</text>
+  <line x1="640" y1="290" x2="895" y2="225" stroke="#F59E0B" stroke-width="1.5" opacity=".5"/>
+  <text x="780" y="248" text-anchor="middle" fill="#fbbf24" font-family="Inter,sans-serif" font-size="9" font-weight="700" transform="rotate(-15,780,248)">SUITABLE_FOR</text>
+
+  <!-- Atmosphere (bottom-right) -->
+  <circle cx="920" cy="390" r="26" fill="#06B6D4" stroke="#22d3ee" stroke-width="1.5" filter="url(#glow2)"/>
+  <text x="920" y="394" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="10" font-weight="800">Atmosphere</text>
+  <line x1="640" y1="310" x2="895" y2="385" stroke="#06B6D4" stroke-width="1.5" opacity=".5"/>
+  <text x="785" y="355" text-anchor="middle" fill="#22d3ee" font-family="Inter,sans-serif" font-size="9" font-weight="700" transform="rotate(17,785,355)">HAS_ATMOSPHERE</text>
+
+  <!-- PriceRange (bottom) -->
+  <circle cx="750" cy="500" r="24" fill="#F97316" stroke="#fb923c" stroke-width="1.5" filter="url(#glow2)"/>
+  <text x="750" y="496" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="9" font-weight="800">Price</text>
+  <text x="750" y="510" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="9" font-weight="800">Range</text>
+  <line x1="620" y1="335" x2="730" y2="478" stroke="#F97316" stroke-width="1.5" opacity=".5"/>
+  <text x="660" y="415" text-anchor="middle" fill="#fb923c" font-family="Inter,sans-serif" font-size="9" font-weight="700" transform="rotate(52,660,415)">HAS_PRICE_RANGE</text>
+
+  <!-- TimeOfDay (bottom-left) -->
+  <circle cx="420" cy="490" r="24" fill="#EAB308" stroke="#facc15" stroke-width="1.5" filter="url(#glow2)"/>
+  <text x="420" y="486" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="9" font-weight="800">Time of</text>
+  <text x="420" y="500" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="9" font-weight="800">Day</text>
+  <line x1="575" y1="335" x2="440" y2="468" stroke="#EAB308" stroke-width="1.5" opacity=".5"/>
+  <text x="495" y="410" text-anchor="middle" fill="#facc15" font-family="Inter,sans-serif" font-size="9" font-weight="700" transform="rotate(-50,495,410)">RECOMMENDED_FOR</text>
+
+  <!-- Interest (left) -->
+  <circle cx="250" cy="400" r="24" fill="#8B5CF6" stroke="#a78bfa" stroke-width="1.5" filter="url(#glow2)"/>
+  <text x="250" y="404" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="10" font-weight="800">Interest</text>
+  <line x1="560" y1="315" x2="275" y2="395" stroke="#8B5CF6" stroke-width="1.5" opacity=".5"/>
+  <text x="400" y="370" text-anchor="middle" fill="#a78bfa" font-family="Inter,sans-serif" font-size="9" font-weight="700" transform="rotate(16,400,370)">RECOMMENDED_FOR</text>
+
+  <!-- Activity (top-left lower) -->
+  <circle cx="210" cy="260" r="24" fill="#EF4444" stroke="#f87171" stroke-width="1.5" filter="url(#glow2)"/>
+  <text x="210" y="264" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="10" font-weight="800">Activity</text>
+  <line x1="560" y1="295" x2="235" y2="267" stroke="#EF4444" stroke-width="1.5" opacity=".5"/>
+  <text x="390" y="270" text-anchor="middle" fill="#f87171" font-family="Inter,sans-serif" font-size="9" font-weight="700">SUPPORTS_ACTIVITY</text>
+
+  <!-- Amenity (far right) -->
+  <circle cx="1020" cy="300" r="22" fill="#A3E635" stroke="#bef264" stroke-width="1.5" filter="url(#glow2)"/>
+  <text x="1020" y="304" text-anchor="middle" fill="#1e293b" font-family="Inter,sans-serif" font-size="9" font-weight="800">Amenity</text>
+  <line x1="640" y1="300" x2="998" y2="300" stroke="#A3E635" stroke-width="1.5" opacity=".4"/>
+  <text x="830" y="292" text-anchor="middle" fill="#a3e635" font-family="Inter,sans-serif" font-size="9" font-weight="700">HAS_AMENITY</text>
+
+  <!-- AccessibilityFeature (far right lower) -->
+  <circle cx="1040" cy="480" r="22" fill="#78716C" stroke="#a8a29e" stroke-width="1.5" filter="url(#glow2)"/>
+  <text x="1040" y="474" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="8" font-weight="800">Accessibility</text>
+  <text x="1040" y="488" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="8" font-weight="800">Feature</text>
+  <line x1="635" y1="325" x2="1020" y2="465" stroke="#78716C" stroke-width="1.5" opacity=".4"/>
+  <text x="850" y="405" text-anchor="middle" fill="#a8a29e" font-family="Inter,sans-serif" font-size="8" font-weight="700" transform="rotate(20,850,405)">HAS_ACCESSIBILITY</text>
+
+  <!-- Self-referential NEARBY_TO -->
+  <path d="M640,300 Q680,230 640,260 Q620,240 600,260" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="4,3" opacity=".6"/>
+  <text x="670" y="245" fill="#818cf8" font-family="Inter,sans-serif" font-size="9" font-weight="700">NEARBY_TO</text>
+  <text x="670" y="258" fill="#64748b" font-family="Inter,sans-serif" font-size="8">(Place ↔ Place)</text>
+
+  <!-- Relation count summary -->
+  <rect x="30" y="540" width="1140" height="40" rx="10" fill="#0f172a" stroke="#1e293b" stroke-width="1" opacity=".8"/>
+  <text x="600" y="565" text-anchor="middle" fill="#64748b" font-family="Inter,sans-serif" font-size="11" font-weight="600">
+    <tspan fill="#818cf8" font-weight="800">12 Relations:</tspan>
+    LOCATED_IN • IN_NEIGHBORHOOD • HAS_CATEGORY • SUPPORTS_ACTIVITY • SUITABLE_FOR • HAS_AMENITY • HAS_ACCESSIBILITY_FEATURE • HAS_PRICE_RANGE • HAS_ATMOSPHERE • RECOMMENDED_FOR • RELATED_TO • NEARBY_TO
+  </text>
+</svg>
+

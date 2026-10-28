@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WanderGraph — Knowledge Graph Explorer Demo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.4/cytoscape.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #020617; color: #f1f5f9;
+      display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+    }
+
+    /* ── Header ───────────────────────────── */
+    header {
+      height: 56px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; border-bottom: 1px solid #1e293b; background: rgba(2,6,23,.92);
+      backdrop-filter: blur(12px); z-index: 10; flex-shrink: 0;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand .logo {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; box-shadow: 0 4px 12px rgba(99,102,241,.3);
+    }
+    .brand h1 { font-size: 18px; font-weight: 800; letter-spacing: -.4px; }
+    .brand h1 span { color: #818cf8; }
+    .brand .tag {
+      font-size: 9px; text-transform: uppercase; font-weight: 700;
+      background: rgba(99,102,241,.12); border: 1px solid rgba(99,102,241,.25);
+      color: #818cf8; padding: 2px 6px; border-radius: 4px; letter-spacing: .6px;
+    }
+
+    .controls { display: flex; align-items: center; gap: 8px; }
+    .layout-group {
+      display: flex; background: #0f172a; border-radius: 8px; padding: 2px;
+      border: 1px solid #1e293b;
+    }
+    .layout-group button {
+      padding: 5px 10px; border: none; background: transparent; color: #94a3b8;
+      font-size: 11px; font-weight: 600; border-radius: 6px; cursor: pointer;
+      text-transform: capitalize; transition: all .15s;
+    }
+    .layout-group button.active { background: #6366f1; color: white; }
+    .layout-group button:hover:not(.active) { color: white; }
+
+    .zoom-group { display: flex; gap: 3px; margin-left: 6px; }
+    .zoom-group button, .close-btn {
+      width: 30px; height: 30px; border-radius: 8px; border: 1px solid #1e293b;
+      background: #0f172a; color: #94a3b8; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      transition: all .15s;
+    }
+    .zoom-group button:hover, .close-btn:hover { color: white; background: #1e293b; }
+
+    /* ── Search ───────────────────────────── */
+    .search-box {
+      position: relative; display: flex; align-items: center;
+    }
+    .search-box input {
+      width: 180px; padding: 5px 8px 5px 28px; border-radius: 8px;
+      background: #0f172a; border: 1px solid #1e293b; color: white;
+      font-size: 11px; outline: none; transition: border-color .15s;
+    }
+    .search-box input:focus { border-color: #6366f1; }
+    .search-box svg {
+      position: absolute; left: 8px; width: 14px; height: 14px; color: #64748b;
+      pointer-events: none;
+    }
+
+    /* ── City Tabs ────────────────────────── */
+    .city-tabs {
+      display: flex; gap: 6px; padding: 10px 20px; background: #0f172a;
+      border-bottom: 1px solid #1e293b; flex-shrink: 0;
+    }
+    .city-tabs button {
+      padding: 6px 14px; border-radius: 10px; border: 1px solid #334155;
+      background: transparent; color: #94a3b8; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all .15s;
+    }
+    .city-tabs button.active {
+      background: linear-gradient(135deg, rgba(99,102,241,.18), rgba(168,85,247,.15));
+      border-color: rgba(99,102,241,.5); color: #c7d2fe;
+    }
+    .city-tabs button:hover:not(.active) { border-color: #6366f1; color: #e2e8f0; }
+
+    /* ── Main Canvas ─────────────────────── */
+    .main { display: flex; flex: 1; overflow: hidden; position: relative; }
+    #cy { flex: 1; cursor: grab; }
+    #cy:active { cursor: grabbing; }
+
+    /* ── Legend ───────────────────────────── */
+    .legend {
+      position: absolute; bottom: 16px; left: 16px; padding: 12px 14px;
+      background: rgba(15,23,42,.92); border: 1px solid #1e293b;
+      border-radius: 14px; backdrop-filter: blur(10px); z-index: 5;
+      pointer-events: none; box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    }
+    .legend h4 { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase;
+      letter-spacing: .6px; margin-bottom: 8px; }
+    .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .legend-item span { font-size: 10px; color: #94a3b8; }
+
+    /* ── Stats Bar ────────────────────────── */
+    .stats-bar {
+      position: absolute; top: 12px; left: 16px; display: flex; gap: 8px; z-index: 5;
+    }
+    .stat-pill {
+      padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 600;
+      background: rgba(15,23,42,.88); border: 1px solid #1e293b;
+      backdrop-filter: blur(8px); color: #94a3b8;
+    }
+    .stat-pill b { color: #818cf8; }
+
+    /* ── Inspector Panel ─────────────────── */
+    .inspector {
+      width: 340px; background: rgba(15,23,42,.96); border-left: 1px solid #1e293b;
+      padding: 20px; overflow-y: auto; flex-shrink: 0;
+      transform: translateX(100%); transition: transform .2s ease;
+      backdrop-filter: blur(12px);
+    }
+    .inspector.open { transform: translateX(0); }
+    .inspector-header { display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 12px; border-bottom: 1px solid #1e293b; margin-bottom: 14px; }
+    .type-badge {
+      font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px;
+      color: white; padding: 3px 8px; border-radius: 4px;
+    }
+    .inspector h3 { font-size: 16px; font-weight: 800; color: white; margin-top: 8px; }
+    .inspector .node-id { font-size: 10px; color: #64748b; font-family: monospace; margin-top: 2px; }
+    .props-box {
+      margin-top: 14px; padding: 10px; background: #020617; border: 1px solid #1e293b;
+      border-radius: 10px;
+    }
+    .props-box h4 { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase;
+      letter-spacing: .5px; margin-bottom: 8px; }
+    .prop-row { display: flex; justify-content: space-between; font-size: 11px; padding: 2px 0; }
+    .prop-row .key { color: #64748b; font-family: monospace; font-size: 10px; }
+    .prop-row .val { color: #cbd5e1; font-weight: 500; max-width: 160px; text-align: right;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .connections-box { margin-top: 14px; }
+    .connections-box h4 { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase;
+      letter-spacing: .5px; margin-bottom: 8px; }
+    .conn-item {
+      display: flex; align-items: center; gap: 6px; font-size: 11px; color: #94a3b8;
+      padding: 4px 0; cursor: pointer; transition: color .1s;
+    }
+    .conn-item:hover { color: #818cf8; }
+    .conn-item .rel { font-size: 9px; color: #6366f1; background: rgba(99,102,241,.12);
+      padding: 1px 5px; border-radius: 3px; font-weight: 600; }
+
+    /* ── Responsive ───────────────────────── */
+    @media (max-width: 768px) {
+      .search-box, .layout-group, .zoom-group { display: none; }
+      .inspector { width: 100%; position: absolute; right: 0; top: 0; bottom: 0; z-index: 20; }
+      .legend { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="logo">🧭</div>
+      <div>
+        <h1>Wander<span>Graph</span></h1>
+      </div>
+      <span class="tag">KG Demo</span>
+    </div>
+    <div class="controls">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search graph node..." />
+      </div>
+      <div class="layout-group">
+        <button class="active" data-layout="cose">CoSE</button>
+        <button data-layout="concentric">Concentric</button>
+        <button data-layout="breadthfirst">Tree</button>
+        <button data-layout="circle">Circle</button>
+      </div>
+      <div class="zoom-group">
+        <button onclick="cy.zoom(cy.zoom()*1.3)" title="Zoom In">+</button>
+        <button onclick="cy.zoom(cy.zoom()*0.7)" title="Zoom Out">−</button>
+        <button onclick="cy.fit(undefined,30)" title="Fit">⊡</button>
+        <button onclick="cy.reset();cy.fit(undefined,30)" title="Reset">↺</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- City Tabs -->
+  <div class="city-tabs">
+    <button class="active" data-city="hyderabad">🇮🇳 Hyderabad</button>
+    <button data-city="bengaluru">🇮🇳 Bengaluru</button>
+    <button data-city="tokyo">🇯🇵 Tokyo</button>
+    <button data-city="kyoto">🇯🇵 Kyoto</button>
+    <button data-city="all">🌍 Full Graph</button>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div id="cy"></div>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-pill">Nodes: <b id="nodeCount">0</b></div>
+      <div class="stat-pill">Edges: <b id="edgeCount">0</b></div>
+      <div class="stat-pill">Density: <b id="density">0</b></div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <h4>Node Types</h4>
+      <div class="legend-grid">
+        <div class="legend-item"><div class="dot" style="background:#6366F1"></div><span>Place</span></div>
+        <div class="legend-item"><div class="dot" style="background:#EC4899"></div><span>City</span></div>
+        <div class="legend-item"><div class="dot" style="background:#10B981"></div><span>Category</span></div>
+        <div class="legend-item"><div class="dot" style="background:#14B8A6"></div><span>Neighborhood</span></div>
+        <div class="legend-item"><div class="dot" style="background:#F59E0B"></div><span>Companion</span></div>
+        <div class="legend-item"><div class="dot" style="background:#06B6D4"></div><span>Atmosphere</span></div>
+        <div class="legend-item"><div class="dot" style="background:#EAB308"></div><span>Time of Day</span></div>
+        <div class="legend-item"><div class="dot" style="background:#F97316"></div><span>Price Range</span></div>
+        <div class="legend-item"><div class="dot" style="background:#8B5CF6"></div><span>Interest</span></div>
+        <div class="legend-item"><div class="dot" style="background:#EF4444"></div><span>Activity</span></div>
+      </div>
+    </div>
+
+    <!-- Inspector -->
+    <div class="inspector" id="inspector">
+      <div class="inspector-header">
+        <span class="type-badge" id="inspBadge">—</span>
+        <button class="close-btn" onclick="closeInspector()">×</button>
+      </div>
+      <h3 id="inspLabel">—</h3>
+      <p class="node-id" id="inspId">—</p>
+      <div class="props-box" id="inspProps">
+        <h4>Properties</h4>
+        <div id="propsContent"></div>
+      </div>
+      <div class="connections-box">
+        <h4>Connections</h4>
+        <div id="connsContent"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ──────────────────────────────────────────────────────────────
+//  WanderGraph Demo — Full Embedded Knowledge Graph Data
+// ──────────────────────────────────────────────────────────────
+const TYPE_COLORS = {
+  City: '#EC4899', Place: '#6366F1', Neighborhood: '#14B8A6',
+  Category: '#10B981', CompanionType: '#F59E0B', Atmosphere: '#06B6D4',
+  TimeOfDay: '#EAB308', PriceRange: '#F97316', Interest: '#8B5CF6',
+  Activity: '#EF4444', Amenity: '#A3E635', AccessibilityFeature: '#78716C',
+};
+
+// ─── Graph Data ──────────────────────────────────────────────
+const graphNodes = [
+  // Cities
+  { id: 'city:hyderabad', label: 'Hyderabad', type: 'City', city: 'hyderabad', props: { country: 'India', currency: 'INR' } },
+  { id: 'city:bengaluru', label: 'Bengaluru', type: 'City', city: 'bengaluru', props: { country: 'India', currency: 'INR' } },
+  { id: 'city:tokyo', label: 'Tokyo', type: 'City', city: 'tokyo', props: { country: 'Japan', currency: 'JPY' } },
+  { id: 'city:kyoto', label: 'Kyoto', type: 'City', city: 'kyoto', props: { country: 'Japan', currency: 'JPY' } },
+
+  // Neighborhoods — Hyderabad
+  { id: 'nh:hyd:old_city', label: 'Old City', type: 'Neighborhood', city: 'hyderabad', props: {} },
+  { id: 'nh:hyd:banjara_hills', label: 'Banjara Hills', type: 'Neighborhood', city: 'hyderabad', props: {} },
+  { id: 'nh:hyd:gachibowli', label: 'Gachibowli', type: 'Neighborhood', city: 'hyderabad', props: {} },
+  { id: 'nh:hyd:secunderabad', label: 'Secunderabad', type: 'Neighborhood', city: 'hyderabad', props: {} },
+  // Neighborhoods — Bengaluru
+  { id: 'nh:blr:indiranagar', label: 'Indiranagar', type: 'Neighborhood', city: 'bengaluru', props: {} },
+  { id: 'nh:blr:koramangala', label: 'Koramangala', type: 'Neighborhood', city: 'bengaluru', props: {} },
+  { id: 'nh:blr:mg_road', label: 'MG Road', type: 'Neighborhood', city: 'bengaluru', props: {} },
+  { id: 'nh:blr:malleswaram', label: 'Malleswaram', type: 'Neighborhood', city: 'bengaluru', props: {} },
+  // Neighborhoods — Tokyo
+  { id: 'nh:tky:asakusa', label: 'Asakusa', type: 'Neighborhood', city: 'tokyo', props: {} },
+  { id: 'nh:tky:shibuya', label: 'Shibuya', type: 'Neighborhood', city: 'tokyo', props: {} },
+  { id: 'nh:tky:shinjuku', label: 'Shinjuku', type: 'Neighborhood', city: 'tokyo', props: {} },
+  { id: 'nh:tky:ueno', label: 'Ueno', type: 'Neighborhood', city: 'tokyo', props: {} },
+  // Neighborhoods — Kyoto
+  { id: 'nh:kyo:gion', label: 'Gion', type: 'Neighborhood', city: 'kyoto', props: {} },
+  { id: 'nh:kyo:arashiyama', label: 'Arashiyama', type: 'Neighborhood', city: 'kyoto', props: {} },
+  { id: 'nh:kyo:fushimi', label: 'Fushimi', type: 'Neighborhood', city: 'kyoto', props: {} },
+  { id: 'nh:kyo:higashiyama', label: 'Higashiyama', type: 'Neighborhood', city: 'kyoto', props: {} },
+
+  // Categories
+  { id: 'cat:historical_monument', label: 'Historical Monument', type: 'Category', city: null, props: {} },
+  { id: 'cat:temple', label: 'Temple / Shrine', type: 'Category', city: null, props: {} },
+  { id: 'cat:park', label: 'Park & Garden', type: 'Category', city: null, props: {} },
+  { id: 'cat:restaurant', label: 'Restaurant', type: 'Category', city: null, props: {} },
+  { id: 'cat:cafe', label: 'Cafe', type: 'Category', city: null, props: {} },
+  { id: 'cat:shopping', label: 'Shopping', type: 'Category', city: null, props: {} },
+  { id: 'cat:museum', label: 'Museum', type: 'Category', city: null, props: {} },
+  { id: 'cat:nightlife', label: 'Nightlife', type: 'Category', city: null, props: {} },
+  { id: 'cat:lake_waterfront', label: 'Lake & Waterfront', type: 'Category', city: null, props: {} },
+
+  // Companion Types
+  { id: 'comp:family', label: 'Family', type: 'CompanionType', city: null, props: {} },
+  { id: 'comp:couples', label: 'Couples', type: 'CompanionType', city: null, props: {} },
+  { id: 'comp:solo', label: 'Solo', type: 'CompanionType', city: null, props: {} },
+  { id: 'comp:friends', label: 'Friends', type: 'CompanionType', city: null, props: {} },
+
+  // Atmosphere
+  { id: 'atm:peaceful', label: 'Peaceful', type: 'Atmosphere', city: null, props: {} },
+  { id: 'atm:romantic', label: 'Romantic', type: 'Atmosphere', city: null, props: {} },
+  { id: 'atm:lively', label: 'Lively', type: 'Atmosphere', city: null, props: {} },
+  { id: 'atm:scenic', label: 'Scenic', type: 'Atmosphere', city: null, props: {} },
+  { id: 'atm:cultural', label: 'Cultural', type: 'Atmosphere', city: null, props: {} },
+  { id: 'atm:spiritual', label: 'Spiritual', type: 'Atmosphere', city: null, props: {} },
+  { id: 'atm:zen', label: 'Zen', type: 'Atmosphere', city: null, props: {} },
+  { id: 'atm:futuristic', label: 'Futuristic', type: 'Atmosphere', city: null, props: {} },
+
+  // Time of Day
+  { id: 'tod:morning', label: 'Morning', type: 'TimeOfDay', city: null, props: {} },
+  { id: 'tod:afternoon', label: 'Afternoon', type: 'TimeOfDay', city: null, props: {} },
+  { id: 'tod:evening', label: 'Evening', type: 'TimeOfDay', city: null, props: {} },
+  { id: 'tod:night', label: 'Night', type: 'TimeOfDay', city: null, props: {} },
+
+  // Price Range
+  { id: 'price:free', label: 'Free (₹0/¥0)', type: 'PriceRange', city: null, props: {} },
+  { id: 'price:budget', label: 'Budget Friendly', type: 'PriceRange', city: null, props: {} },
+  { id: 'price:moderate', label: 'Moderate', type: 'PriceRange', city: null, props: {} },
+  { id: 'price:upscale', label: 'Upscale', type: 'PriceRange', city: null, props: {} },
+
+  // Interests
+  { id: 'int:history', label: 'History', type: 'Interest', city: null, props: {} },
+  { id: 'int:architecture', label: 'Architecture', type: 'Interest', city: null, props: {} },
+  { id: 'int:photography', label: 'Photography', type: 'Interest', city: null, props: {} },
+  { id: 'int:nature', label: 'Nature', type: 'Interest', city: null, props: {} },
+  { id: 'int:food', label: 'Food & Cuisine', type: 'Interest', city: null, props: {} },
+  { id: 'int:spirituality', label: 'Spirituality', type: 'Interest', city: null, props: {} },
+  { id: 'int:tech', label: 'Tech & Innovation', type: 'Interest', city: null, props: {} },
+
+  // Activities
+  { id: 'act:sightseeing', label: 'Sightseeing', type: 'Activity', city: null, props: {} },
+  { id: 'act:dining', label: 'Dining', type: 'Activity', city: null, props: {} },
+  { id: 'act:shopping', label: 'Shopping', type: 'Activity', city: null, props: {} },
+  { id: 'act:meditation', label: 'Meditation', type: 'Activity', city: null, props: {} },
+  { id: 'act:trekking', label: 'Trekking', type: 'Activity', city: null, props: {} },
+  { id: 'act:boating', label: 'Boating', type: 'Activity', city: null, props: {} },
+
+  // ─── Places — Hyderabad ────────────────────
+  { id: 'place:hyd_charminar', label: 'Charminar', type: 'Place', city: 'hyderabad',
+    props: { rating: 4.5, reviews: '142K', cost: '₹50', hours: '09:30–17:30' } },
+  { id: 'place:hyd_golconda', label: 'Golconda Fort', type: 'Place', city: 'hyderabad',
+    props: { rating: 4.6, reviews: '98K', cost: '₹100', hours: '09:00–17:30' } },
+  { id: 'place:hyd_hussain_sagar', label: 'Hussain Sagar Lake', type: 'Place', city: 'hyderabad',
+    props: { rating: 4.3, reviews: '67K', cost: 'Free', hours: 'Open 24h' } },
+  { id: 'place:hyd_salar_jung', label: 'Salar Jung Museum', type: 'Place', city: 'hyderabad',
+    props: { rating: 4.5, reviews: '41K', cost: '₹50', hours: '10:00–17:00' } },
+  { id: 'place:hyd_paradise', label: 'Paradise Biryani', type: 'Place', city: 'hyderabad',
+    props: { rating: 4.2, reviews: '180K', cost: '₹400', hours: '11:00–23:00' } },
+  { id: 'place:hyd_ramoji', label: 'Ramoji Film City', type: 'Place', city: 'hyderabad',
+    props: { rating: 4.3, reviews: '88K', cost: '₹1,500', hours: '09:00–17:30' } },
+
+  // ─── Places — Bengaluru ────────────────────
+  { id: 'place:blr_cubbon', label: 'Cubbon Park', type: 'Place', city: 'bengaluru',
+    props: { rating: 4.5, reviews: '72K', cost: 'Free', hours: '06:00–18:00' } },
+  { id: 'place:blr_lalbagh', label: 'Lalbagh Botanical Garden', type: 'Place', city: 'bengaluru',
+    props: { rating: 4.5, reviews: '63K', cost: '₹30', hours: '06:00–19:00' } },
+  { id: 'place:blr_palace', label: 'Bangalore Palace', type: 'Place', city: 'bengaluru',
+    props: { rating: 4.2, reviews: '28K', cost: '₹230', hours: '10:00–17:30' } },
+  { id: 'place:blr_vidhan_soudha', label: 'Vidhan Soudha', type: 'Place', city: 'bengaluru',
+    props: { rating: 4.4, reviews: '19K', cost: 'Free', hours: 'Exterior only' } },
+  { id: 'place:blr_toit', label: 'Toit Brewpub', type: 'Place', city: 'bengaluru',
+    props: { rating: 4.4, reviews: '34K', cost: '₹1,200', hours: '12:00–01:00' } },
+
+  // ─── Places — Tokyo ────────────────────────
+  { id: 'place:tky_senso_ji', label: 'Sensō-ji Temple', type: 'Place', city: 'tokyo',
+    props: { rating: 4.6, reviews: '210K', cost: 'Free', hours: '06:00–17:00' } },
+  { id: 'place:tky_shibuya_crossing', label: 'Shibuya Crossing', type: 'Place', city: 'tokyo',
+    props: { rating: 4.4, reviews: '145K', cost: 'Free', hours: 'Open 24h' } },
+  { id: 'place:tky_meiji_shrine', label: 'Meiji Shrine', type: 'Place', city: 'tokyo',
+    props: { rating: 4.7, reviews: '95K', cost: 'Free', hours: 'Sunrise–Sunset' } },
+  { id: 'place:tky_tokyo_tower', label: 'Tokyo Tower', type: 'Place', city: 'tokyo',
+    props: { rating: 4.5, reviews: '78K', cost: '¥1,200', hours: '09:00–23:00' } },
+  { id: 'place:tky_akihabara', label: 'Akihabara Electric Town', type: 'Place', city: 'tokyo',
+    props: { rating: 4.3, reviews: '52K', cost: 'Free', hours: '10:00–21:00' } },
+  { id: 'place:tky_ueno_park', label: 'Ueno Park', type: 'Place', city: 'tokyo',
+    props: { rating: 4.5, reviews: '67K', cost: 'Free', hours: '05:00–23:00' } },
+
+  // ─── Places — Kyoto ────────────────────────
+  { id: 'place:kyo_kinkakuji', label: 'Kinkaku-ji (Golden Pavilion)', type: 'Place', city: 'kyoto',
+    props: { rating: 4.7, reviews: '115K', cost: '¥500', hours: '09:00–17:00' } },
+  { id: 'place:kyo_fushimi_inari', label: 'Fushimi Inari Shrine', type: 'Place', city: 'kyoto',
+    props: { rating: 4.8, reviews: '190K', cost: 'Free', hours: 'Open 24h' } },
+  { id: 'place:kyo_arashiyama_bamboo', label: 'Arashiyama Bamboo Grove', type: 'Place', city: 'kyoto',
+    props: { rating: 4.5, reviews: '88K', cost: 'Free', hours: 'Open 24h' } },
+  { id: 'place:kyo_kiyomizu', label: 'Kiyomizu-dera Temple', type: 'Place', city: 'kyoto',
+    props: { rating: 4.6, reviews: '102K', cost: '¥400', hours: '06:00–18:00' } },
+  { id: 'place:kyo_nijo_castle', label: 'Nijō Castle', type: 'Place', city: 'kyoto',
+    props: { rating: 4.5, reviews: '45K', cost: '¥800', hours: '08:45–17:00' } },
+];
+
+const graphEdges = [
+  // Neighborhood → City
+  { s: 'nh:hyd:old_city', t: 'city:hyderabad', r: 'LOCATED_IN' },
+  { s: 'nh:hyd:banjara_hills', t: 'city:hyderabad', r: 'LOCATED_IN' },
+  { s: 'nh:hyd:gachibowli', t: 'city:hyderabad', r: 'LOCATED_IN' },
+  { s: 'nh:hyd:secunderabad', t: 'city:hyderabad', r: 'LOCATED_IN' },
+  { s: 'nh:blr:indiranagar', t: 'city:bengaluru', r: 'LOCATED_IN' },
+  { s: 'nh:blr:koramangala', t: 'city:bengaluru', r: 'LOCATED_IN' },
+  { s: 'nh:blr:mg_road', t: 'city:bengaluru', r: 'LOCATED_IN' },
+  { s: 'nh:blr:malleswaram', t: 'city:bengaluru', r: 'LOCATED_IN' },
+  { s: 'nh:tky:asakusa', t: 'city:tokyo', r: 'LOCATED_IN' },
+  { s: 'nh:tky:shibuya', t: 'city:tokyo', r: 'LOCATED_IN' },
+  { s: 'nh:tky:shinjuku', t: 'city:tokyo', r: 'LOCATED_IN' },
+  { s: 'nh:tky:ueno', t: 'city:tokyo', r: 'LOCATED_IN' },
+  { s: 'nh:kyo:gion', t: 'city:kyoto', r: 'LOCATED_IN' },
+  { s: 'nh:kyo:arashiyama', t: 'city:kyoto', r: 'LOCATED_IN' },
+  { s: 'nh:kyo:fushimi', t: 'city:kyoto', r: 'LOCATED_IN' },
+  { s: 'nh:kyo:higashiyama', t: 'city:kyoto', r: 'LOCATED_IN' },
+
+  // Places → City
+  { s: 'place:hyd_charminar', t: 'city:hyderabad', r: 'LOCATED_IN' },
+  { s: 'place:hyd_golconda', t: 'city:hyderabad', r: 'LOCATED_IN' },
+  { s: 'place:hyd_hussain_sagar', t: 'city:hyderabad', r: 'LOCATED_IN' },
+  { s: 'place:hyd_salar_jung', t: 'city:hyderabad', r: 'LOCATED_IN' },
+  { s: 'place:hyd_paradise', t: 'city:hyderabad', r: 'LOCATED_IN' },
+  { s: 'place:hyd_ramoji', t: 'city:hyderabad', r: 'LOCATED_IN' },
+  { s: 'place:blr_cubbon', t: 'city:bengaluru', r: 'LOCATED_IN' },
+  { s: 'place:blr_lalbagh', t: 'city:bengaluru', r: 'LOCATED_IN' },
+  { s: 'place:blr_palace', t: 'city:bengaluru', r: 'LOCATED_IN' },
+  { s: 'place:blr_vidhan_soudha', t: 'city:bengaluru', r: 'LOCATED_IN' },
+  { s: 'place:blr_toit', t: 'city:bengaluru', r: 'LOCATED_IN' },
+  { s: 'place:tky_senso_ji', t: 'city:tokyo', r: 'LOCATED_IN' },
+  { s: 'place:tky_shibuya_crossing', t: 'city:tokyo', r: 'LOCATED_IN' },
+  { s: 'place:tky_meiji_shrine', t: 'city:tokyo', r: 'LOCATED_IN' },
+  { s: 'place:tky_tokyo_tower', t: 'city:tokyo', r: 'LOCATED_IN' },
+  { s: 'place:tky_akihabara', t: 'city:tokyo', r: 'LOCATED_IN' },
+  { s: 'place:tky_ueno_park', t: 'city:tokyo', r: 'LOCATED_IN' },
+  { s: 'place:kyo_kinkakuji', t: 'city:kyoto', r: 'LOCATED_IN' },
+  { s: 'place:kyo_fushimi_inari', t: 'city:kyoto', r: 'LOCATED_IN' },
+  { s: 'place:kyo_arashiyama_bamboo', t: 'city:kyoto', r: 'LOCATED_IN' },
+  { s: 'place:kyo_kiyomizu', t: 'city:kyoto', r: 'LOCATED_IN' },
+  { s: 'place:kyo_nijo_castle', t: 'city:kyoto', r: 'LOCATED_IN' },
+
+  // Places → Neighborhood
+  { s: 'place:hyd_charminar', t: 'nh:hyd:old_city', r: 'IN_NEIGHBORHOOD' },
+  { s: 'place:hyd_salar_jung', t: 'nh:hyd:old_city', r: 'IN_NEIGHBORHOOD' },
+  { s: 'place:hyd_paradise', t: 'nh:hyd:secunderabad', r: 'IN_NEIGHBORHOOD' },
+  { s: 'place:blr_cubbon', t: 'nh:blr:mg_road', r: 'IN_NEIGHBORHOOD' },
+  { s: 'place:blr_toit', t: 'nh:blr:indiranagar', r: 'IN_NEIGHBORHOOD' },
+  { s: 'place:tky_senso_ji', t: 'nh:tky:asakusa', r: 'IN_NEIGHBORHOOD' },
+  { s: 'place:tky_shibuya_crossing', t: 'nh:tky:shibuya', r: 'IN_NEIGHBORHOOD' },
+  { s: 'place:tky_ueno_park', t: 'nh:tky:ueno', r: 'IN_NEIGHBORHOOD' },
+  { s: 'place:kyo_fushimi_inari', t: 'nh:kyo:fushimi', r: 'IN_NEIGHBORHOOD' },
+  { s: 'place:kyo_arashiyama_bamboo', t: 'nh:kyo:arashiyama', r: 'IN_NEIGHBORHOOD' },
+  { s: 'place:kyo_kiyomizu', t: 'nh:kyo:higashiyama', r: 'IN_NEIGHBORHOOD' },
+
+  // Places → Category
+  { s: 'place:hyd_charminar', t: 'cat:historical_monument', r: 'HAS_CATEGORY' },
+  { s: 'place:hyd_golconda', t: 'cat:historical_monument', r: 'HAS_CATEGORY' },
+  { s: 'place:hyd_hussain_sagar', t: 'cat:lake_waterfront', r: 'HAS_CATEGORY' },
+  { s: 'place:hyd_salar_jung', t: 'cat:museum', r: 'HAS_CATEGORY' },
+  { s: 'place:hyd_paradise', t: 'cat:restaurant', r: 'HAS_CATEGORY' },
+  { s: 'place:blr_cubbon', t: 'cat:park', r: 'HAS_CATEGORY' },
+  { s: 'place:blr_lalbagh', t: 'cat:park', r: 'HAS_CATEGORY' },
+  { s: 'place:blr_palace', t: 'cat:historical_monument', r: 'HAS_CATEGORY' },
+  { s: 'place:blr_toit', t: 'cat:nightlife', r: 'HAS_CATEGORY' },
+  { s: 'place:tky_senso_ji', t: 'cat:temple', r: 'HAS_CATEGORY' },
+  { s: 'place:tky_meiji_shrine', t: 'cat:temple', r: 'HAS_CATEGORY' },
+  { s: 'place:tky_tokyo_tower', t: 'cat:historical_monument', r: 'HAS_CATEGORY' },
+  { s: 'place:tky_akihabara', t: 'cat:shopping', r: 'HAS_CATEGORY' },
+  { s: 'place:tky_ueno_park', t: 'cat:park', r: 'HAS_CATEGORY' },
+  { s: 'place:kyo_kinkakuji', t: 'cat:temple', r: 'HAS_CATEGORY' },
+  { s: 'place:kyo_fushimi_inari', t: 'cat:temple', r: 'HAS_CATEGORY' },
+  { s: 'place:kyo_arashiyama_bamboo', t: 'cat:park', r: 'HAS_CATEGORY' },
+  { s: 'place:kyo_kiyomizu', t: 'cat:temple', r: 'HAS_CATEGORY' },
+  { s: 'place:kyo_nijo_castle', t: 'cat:historical_monument', r: 'HAS_CATEGORY' },
+
+  // Places → Companion
+  { s: 'place:hyd_charminar', t: 'comp:family', r: 'SUITABLE_FOR' },
+  { s: 'place:hyd_charminar', t: 'comp:couples', r: 'SUITABLE_FOR' },
+  { s: 'place:hyd_charminar', t: 'comp:friends', r: 'SUITABLE_FOR' },
+  { s: 'place:hyd_hussain_sagar', t: 'comp:couples', r: 'SUITABLE_FOR' },
+  { s: 'place:hyd_hussain_sagar', t: 'comp:family', r: 'SUITABLE_FOR' },
+  { s: 'place:blr_cubbon', t: 'comp:solo', r: 'SUITABLE_FOR' },
+  { s: 'place:blr_cubbon', t: 'comp:couples', r: 'SUITABLE_FOR' },
+  { s: 'place:blr_toit', t: 'comp:friends', r: 'SUITABLE_FOR' },
+  { s: 'place:tky_senso_ji', t: 'comp:family', r: 'SUITABLE_FOR' },
+  { s: 'place:tky_senso_ji', t: 'comp:solo', r: 'SUITABLE_FOR' },
+  { s: 'place:tky_shibuya_crossing', t: 'comp:friends', r: 'SUITABLE_FOR' },
+  { s: 'place:kyo_fushimi_inari', t: 'comp:solo', r: 'SUITABLE_FOR' },
+  { s: 'place:kyo_fushimi_inari', t: 'comp:couples', r: 'SUITABLE_FOR' },
+  { s: 'place:kyo_arashiyama_bamboo', t: 'comp:couples', r: 'SUITABLE_FOR' },
+  { s: 'place:kyo_kinkakuji', t: 'comp:family', r: 'SUITABLE_FOR' },
+
+  // Places → Atmosphere
+  { s: 'place:hyd_charminar', t: 'atm:cultural', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:hyd_charminar', t: 'atm:lively', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:hyd_golconda', t: 'atm:scenic', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:hyd_hussain_sagar', t: 'atm:romantic', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:hyd_hussain_sagar', t: 'atm:scenic', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:blr_cubbon', t: 'atm:peaceful', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:blr_lalbagh', t: 'atm:peaceful', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:blr_toit', t: 'atm:lively', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:tky_senso_ji', t: 'atm:spiritual', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:tky_senso_ji', t: 'atm:cultural', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:tky_shibuya_crossing', t: 'atm:futuristic', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:tky_shibuya_crossing', t: 'atm:lively', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:tky_meiji_shrine', t: 'atm:peaceful', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:tky_meiji_shrine', t: 'atm:spiritual', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:kyo_kinkakuji', t: 'atm:zen', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:kyo_kinkakuji', t: 'atm:scenic', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:kyo_fushimi_inari', t: 'atm:spiritual', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:kyo_arashiyama_bamboo', t: 'atm:zen', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:kyo_arashiyama_bamboo', t: 'atm:peaceful', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:kyo_kiyomizu', t: 'atm:spiritual', r: 'HAS_ATMOSPHERE' },
+  { s: 'place:kyo_kiyomizu', t: 'atm:scenic', r: 'HAS_ATMOSPHERE' },
+
+  // Places → Time of Day
+  { s: 'place:hyd_charminar', t: 'tod:morning', r: 'RECOMMENDED_FOR' },
+  { s: 'place:hyd_charminar', t: 'tod:evening', r: 'RECOMMENDED_FOR' },
+  { s: 'place:hyd_hussain_sagar', t: 'tod:evening', r: 'RECOMMENDED_FOR' },
+  { s: 'place:blr_cubbon', t: 'tod:morning', r: 'RECOMMENDED_FOR' },
+  { s: 'place:blr_toit', t: 'tod:night', r: 'RECOMMENDED_FOR' },
+  { s: 'place:tky_senso_ji', t: 'tod:morning', r: 'RECOMMENDED_FOR' },
+  { s: 'place:tky_shibuya_crossing', t: 'tod:evening', r: 'RECOMMENDED_FOR' },
+  { s: 'place:tky_shibuya_crossing', t: 'tod:night', r: 'RECOMMENDED_FOR' },
+  { s: 'place:kyo_fushimi_inari', t: 'tod:morning', r: 'RECOMMENDED_FOR' },
+  { s: 'place:kyo_arashiyama_bamboo', t: 'tod:morning', r: 'RECOMMENDED_FOR' },
+
+  // Places → Interest
+  { s: 'place:hyd_charminar', t: 'int:history', r: 'RECOMMENDED_FOR' },
+  { s: 'place:hyd_charminar', t: 'int:architecture', r: 'RECOMMENDED_FOR' },
+  { s: 'place:hyd_charminar', t: 'int:photography', r: 'RECOMMENDED_FOR' },
+  { s: 'place:hyd_golconda', t: 'int:history', r: 'RECOMMENDED_FOR' },
+  { s: 'place:hyd_paradise', t: 'int:food', r: 'RECOMMENDED_FOR' },
+  { s: 'place:blr_cubbon', t: 'int:nature', r: 'RECOMMENDED_FOR' },
+  { s: 'place:blr_lalbagh', t: 'int:nature', r: 'RECOMMENDED_FOR' },
+  { s: 'place:tky_senso_ji', t: 'int:spirituality', r: 'RECOMMENDED_FOR' },
+  { s: 'place:tky_senso_ji', t: 'int:history', r: 'RECOMMENDED_FOR' },
+  { s: 'place:tky_akihabara', t: 'int:tech', r: 'RECOMMENDED_FOR' },
+  { s: 'place:kyo_kinkakuji', t: 'int:architecture', r: 'RECOMMENDED_FOR' },
+  { s: 'place:kyo_fushimi_inari', t: 'int:spirituality', r: 'RECOMMENDED_FOR' },
+  { s: 'place:kyo_fushimi_inari', t: 'int:photography', r: 'RECOMMENDED_FOR' },
+
+  // Places → Activity
+  { s: 'place:hyd_charminar', t: 'act:sightseeing', r: 'SUPPORTS_ACTIVITY' },
+  { s: 'place:hyd_charminar', t: 'act:shopping', r: 'SUPPORTS_ACTIVITY' },
+  { s: 'place:hyd_hussain_sagar', t: 'act:boating', r: 'SUPPORTS_ACTIVITY' },
+  { s: 'place:hyd_paradise', t: 'act:dining', r: 'SUPPORTS_ACTIVITY' },
+  { s: 'place:blr_cubbon', t: 'act:trekking', r: 'SUPPORTS_ACTIVITY' },
+  { s: 'place:tky_senso_ji', t: 'act:sightseeing', r: 'SUPPORTS_ACTIVITY' },
+  { s: 'place:tky_akihabara', t: 'act:shopping', r: 'SUPPORTS_ACTIVITY' },
+  { s: 'place:kyo_fushimi_inari', t: 'act:trekking', r: 'SUPPORTS_ACTIVITY' },
+  { s: 'place:kyo_fushimi_inari', t: 'act:meditation', r: 'SUPPORTS_ACTIVITY' },
+
+  // Places → Price Range
+  { s: 'place:hyd_charminar', t: 'price:budget', r: 'HAS_PRICE_RANGE' },
+  { s: 'place:hyd_golconda', t: 'price:budget', r: 'HAS_PRICE_RANGE' },
+  { s: 'place:hyd_hussain_sagar', t: 'price:free', r: 'HAS_PRICE_RANGE' },
+  { s: 'place:hyd_paradise', t: 'price:moderate', r: 'HAS_PRICE_RANGE' },
+  { s: 'place:hyd_ramoji', t: 'price:upscale', r: 'HAS_PRICE_RANGE' },
+  { s: 'place:blr_cubbon', t: 'price:free', r: 'HAS_PRICE_RANGE' },
+  { s: 'place:blr_lalbagh', t: 'price:budget', r: 'HAS_PRICE_RANGE' },
+  { s: 'place:blr_toit', t: 'price:upscale', r: 'HAS_PRICE_RANGE' },
+  { s: 'place:tky_senso_ji', t: 'price:free', r: 'HAS_PRICE_RANGE' },
+  { s: 'place:tky_shibuya_crossing', t: 'price:free', r: 'HAS_PRICE_RANGE' },
+  { s: 'place:tky_meiji_shrine', t: 'price:free', r: 'HAS_PRICE_RANGE' },
+  { s: 'place:tky_tokyo_tower', t: 'price:moderate', r: 'HAS_PRICE_RANGE' },
+  { s: 'place:kyo_kinkakuji', t: 'price:budget', r: 'HAS_PRICE_RANGE' },
+  { s: 'place:kyo_fushimi_inari', t: 'price:free', r: 'HAS_PRICE_RANGE' },
+  { s: 'place:kyo_arashiyama_bamboo', t: 'price:free', r: 'HAS_PRICE_RANGE' },
+  { s: 'place:kyo_kiyomizu', t: 'price:budget', r: 'HAS_PRICE_RANGE' },
+
+  // NEARBY_TO relationships
+  { s: 'place:hyd_charminar', t: 'place:hyd_salar_jung', r: 'NEARBY_TO' },
+  { s: 'place:blr_cubbon', t: 'place:blr_vidhan_soudha', r: 'NEARBY_TO' },
+  { s: 'place:blr_cubbon', t: 'place:blr_lalbagh', r: 'NEARBY_TO' },
+  { s: 'place:tky_senso_ji', t: 'place:tky_ueno_park', r: 'NEARBY_TO' },
+  { s: 'place:kyo_kinkakuji', t: 'place:kyo_nijo_castle', r: 'NEARBY_TO' },
+  { s: 'place:kyo_kiyomizu', t: 'place:kyo_fushimi_inari', r: 'NEARBY_TO' },
+];
+
+// ─── Build Cytoscape Elements ────────────────────────────────
+function buildElements(cityFilter) {
+  const filteredNodes = graphNodes.filter(n =>
+    !cityFilter || cityFilter === 'all' || n.city === cityFilter || n.city === null
+  );
+  const nodeIds = new Set(filteredNodes.map(n => n.id));
+  const filteredEdges = graphEdges.filter(e => nodeIds.has(e.s) && nodeIds.has(e.t));
+
+  const elements = [
+    ...filteredNodes.map(n => ({
+      data: {
+        id: n.id, label: n.label, type: n.type,
+        color: TYPE_COLORS[n.type] || '#6366F1',
+        properties: n.props || {},
+      },
+    })),
+    ...filteredEdges.map((e, i) => ({
+      data: {
+        id: `e${i}_${e.s}_${e.t}`, source: e.s, target: e.t,
+        label: e.r.replace(/_/g, ' '), relation: e.r,
+      },
+    })),
+  ];
+  return elements;
+}
+
+// ─── Initialize Cytoscape ────────────────────────────────────
+let cy;
+let currentCity = 'hyderabad';
+
+function initGraph(city) {
+  currentCity = city;
+  const elements = buildElements(city);
+
+  if (cy) cy.destroy();
+
+  cy = cytoscape({
+    container: document.getElementById('cy'),
+    elements,
+    style: [
+      {
+        selector: 'node',
+        style: {
+          label: 'data(label)', 'background-color': 'data(color)',
+          color: '#f8fafc', 'font-size': '10px', 'font-weight': 'bold',
+          'text-valign': 'bottom', 'text-margin-y': 5,
+          'text-background-color': '#0f172a', 'text-background-opacity': 0.85,
+          'text-background-padding': '3px', 'text-background-shape': 'roundrectangle',
+          width: 28, height: 28, 'border-width': 2, 'border-color': '#fff',
+          'border-opacity': 0.25,
+        },
+      },
+      {
+        selector: 'node[type = "City"]',
+        style: { width: 48, height: 48, 'font-size': '13px', 'border-width': 3, 'border-color': '#ec4899' },
+      },
+      {
+        selector: 'node[type = "Place"]',
+        style: { width: 34, height: 34, 'border-color': '#818cf8' },
+      },
+      {
+        selector: 'edge',
+        style: {
+          width: 1.2, 'line-color': '#334155', 'target-arrow-color': '#64748b',
+          'target-arrow-shape': 'triangle', 'curve-style': 'bezier',
+          label: 'data(label)', 'font-size': '7px', color: '#64748b',
+          'text-rotation': 'autorotate', 'text-background-color': '#020617',
+          'text-background-opacity': 0.8, 'text-background-padding': '1px',
+        },
+      },
+      {
+        selector: 'edge[relation = "NEARBY_TO"]',
+        style: { 'line-style': 'dashed', 'line-color': '#6366f1', 'target-arrow-shape': 'none' },
+      },
+      {
+        selector: ':selected',
+        style: { 'border-width': 4, 'border-color': '#38bdf8', 'line-color': '#38bdf8', 'target-arrow-color': '#38bdf8' },
+      },
+    ],
+    layout: { name: 'cose', animate: true, animationDuration: 600, nodeRepulsion: () => 8000, idealEdgeLength: () => 80 },
+  });
+
+  // Update stats
+  document.getElementById('nodeCount').textContent = cy.nodes().length;
+  document.getElementById('edgeCount').textContent = cy.edges().length;
+  const n = cy.nodes().length;
+  const e = cy.edges().length;
+  const d = n > 1 ? (e / (n * (n - 1))).toFixed(4) : '0';
+  document.getElementById('density').textContent = d;
+
+  // Node click
+  cy.on('tap', 'node', evt => openInspector(evt.target));
+  cy.on('tap', evt => { if (evt.target === cy) closeInspector(); });
+
+  window.cy = cy;
+}
+
+// ─── Inspector ───────────────────────────────────────────────
+function openInspector(node) {
+  const d = node.data();
+  const panel = document.getElementById('inspector');
+  panel.classList.add('open');
+
+  document.getElementById('inspBadge').textContent = d.type;
+  document.getElementById('inspBadge').style.background = d.color;
+  document.getElementById('inspLabel').textContent = d.label;
+  document.getElementById('inspId').textContent = `ID: ${d.id}`;
+
+  const propsEl = document.getElementById('propsContent');
+  propsEl.innerHTML = '';
+  if (d.properties) {
+    Object.entries(d.properties).forEach(([k, v]) => {
+      const row = document.createElement('div');
+      row.className = 'prop-row';
+      row.innerHTML = `<span class="key">${k}</span><span class="val">${v}</span>`;
+      propsEl.appendChild(row);
+    });
+  }
+
+  const connsEl = document.getElementById('connsContent');
+  connsEl.innerHTML = '';
+  const edges = node.connectedEdges();
+  edges.forEach(edge => {
+    const other = edge.source().id() === node.id() ? edge.target() : edge.source();
+    const item = document.createElement('div');
+    item.className = 'conn-item';
+    item.innerHTML = `<span class="rel">${edge.data('relation')}</span> ${other.data('label')}`;
+    item.onclick = () => {
+      cy.center(other); cy.zoom({ level: 1.5, position: other.position() });
+      other.select(); openInspector(other);
+    };
+    connsEl.appendChild(item);
+  });
+}
+
+function closeInspector() {
+  document.getElementById('inspector').classList.remove('open');
+}
+
+// ─── Event Handlers ──────────────────────────────────────────
+// Layout buttons
+document.querySelectorAll('.layout-group button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.layout-group button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (cy) cy.layout({ name: btn.dataset.layout, animate: true, animationDuration: 500 }).run();
+  });
+});
+
+// City tabs
+document.querySelectorAll('.city-tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.city-tabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    closeInspector();
+    initGraph(btn.dataset.city);
+  });
+});
+
+// Search
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && cy) {
+    const q = e.target.value.toLowerCase().trim();
+    if (!q) return;
+    const matched = cy.nodes().filter(n => (n.data('label') || '').toLowerCase().includes(q));
+    if (matched.length > 0) {
+      cy.nodes().unselect();
+      matched.select();
+      cy.center(matched);
+      const first = matched.first();
+      cy.zoom({ level: 1.4, position: first.position() });
+      openInspector(first);
+    }
+  }
+});
+
+// Init
+initGraph('hyderabad');
+</script>
+</body>
+</html>
+

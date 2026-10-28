@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700">
+  <defs>
+    <radialGradient id="bg3" cx="50%" cy="50%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </radialGradient>
+    <linearGradient id="cardGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#312e81" stop-opacity=".6"/>
+      <stop offset="100%" stop-color="#1e1b4b" stop-opacity=".8"/>
+    </linearGradient>
+    <linearGradient id="cardGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b" stop-opacity=".6"/>
+      <stop offset="100%" stop-color="#022c22" stop-opacity=".8"/>
+    </linearGradient>
+    <linearGradient id="cardGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7f1d1d" stop-opacity=".6"/>
+      <stop offset="100%" stop-color="#450a0a" stop-opacity=".8"/>
+    </linearGradient>
+    <clipPath id="cardClip1"><rect x="60" y="200" width="340" height="160" rx="12"/></clipPath>
+    <clipPath id="cardClip2"><rect x="430" y="200" width="340" height="160" rx="12"/></clipPath>
+    <clipPath id="cardClip3"><rect x="800" y="200" width="340" height="160" rx="12"/></clipPath>
+  </defs>
+
+  <rect width="1200" height="700" fill="url(#bg3)"/>
+
+  <!-- Header -->
+  <rect x="0" y="0" width="1200" height="56" fill="#020617" opacity=".95"/>
+  <rect x="0" y="55" width="1200" height="1" fill="#1e293b"/>
+  <circle cx="30" cy="28" r="14" fill="#6366f1" opacity=".85"/>
+  <text x="52" y="33" fill="white" font-family="Inter,sans-serif" font-size="17" font-weight="800">Wander<tspan fill="#818cf8">Graph</tspan></text>
+  <rect x="170" y="16" width="44" height="18" rx="3" fill="rgba(99,102,241,.12)" stroke="rgba(99,102,241,.3)" stroke-width=".5"/>
+  <text x="180" y="29" fill="#818cf8" font-family="Inter,sans-serif" font-size="8" font-weight="700">KG AI</text>
+
+  <!-- City selector -->
+  <rect x="880" y="14" width="130" height="28" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="1"/>
+  <text x="900" y="33" fill="#818cf8" font-family="Inter,sans-serif" font-size="12" font-weight="600">📍 Hyderabad</text>
+  <rect x="1020" y="14" width="130" height="28" rx="8" fill="rgba(99,102,241,.12)" stroke="rgba(99,102,241,.3)" stroke-width="1"/>
+  <text x="1040" y="33" fill="#818cf8" font-family="Inter,sans-serif" font-size="12" font-weight="600">🔗 Graph Explorer</text>
+
+  <!-- Hero Text -->
+  <text x="600" y="95" text-anchor="middle" fill="#818cf8" font-family="Inter,sans-serif" font-size="10" font-weight="700">✨ MultiDiGraph Powered Place Intelligence</text>
+  <text x="600" y="130" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="32" font-weight="900">Discover <tspan fill="#818cf8">Hyderabad</tspan></text>
+  <text x="600" y="155" text-anchor="middle" fill="#64748b" font-family="Inter,sans-serif" font-size="13">Tailor experiences, companions, atmosphere, and budgets through conversational refinement.</text>
+
+  <!-- Search Bar -->
+  <rect x="320" y="170" width="560" height="42" rx="14" fill="#0f172a" stroke="#1e293b" stroke-width="1.5"/>
+  <text x="345" y="196" fill="#475569" font-family="Inter,sans-serif" font-size="13">Search temples, cafes, nightlife in Hyderabad...</text>
+  <rect x="800" y="176" width="72" height="30" rx="10" fill="#6366f1"/>
+  <text x="822" y="196" fill="white" font-family="Inter,sans-serif" font-size="11" font-weight="700">Search</text>
+
+  <!-- Card 1: Charminar -->
+  <rect x="60" y="230" width="340" height="420" rx="16" fill="#0f172a" stroke="#1e293b" stroke-width="1"/>
+  <rect x="60" y="230" width="340" height="160" rx="16" fill="url(#cardGrad1)"/>
+  <rect x="60" y="370" width="340" height="1" fill="#1e293b" rx="0"/>
+  <text x="230" y="310" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="36">🕌</text>
+  <text x="230" y="340" text-anchor="middle" fill="rgba(255,255,255,.5)" font-family="Inter,sans-serif" font-size="10" font-weight="700">HISTORICAL MONUMENT</text>
+  <!-- Type badge -->
+  <rect x="72" y="242" width="110" height="18" rx="4" fill="rgba(2,6,23,.8)" stroke="rgba(100,116,139,.3)" stroke-width=".5"/>
+  <text x="80" y="255" fill="white" font-family="Inter,sans-serif" font-size="8" font-weight="800">HISTORICAL MONUMENT</text>
+  <!-- Match & Rating -->
+  <rect x="300" y="242" width="88" height="18" rx="10" fill="rgba(6,78,59,.8)" stroke="rgba(16,185,129,.4)" stroke-width=".5"/>
+  <text x="315" y="255" fill="#6ee7b7" font-family="Inter,sans-serif" font-size="8" font-weight="800">HIGH MATCH</text>
+  <rect x="310" y="266" width="55" height="18" rx="10" fill="rgba(2,6,23,.8)" stroke="rgba(245,158,11,.3)" stroke-width=".5"/>
+  <text x="318" y="279" fill="#fcd34d" font-family="Inter,sans-serif" font-size="9" font-weight="800">★ 4.5</text>
+  <!-- Card body -->
+  <text x="76" y="415" fill="#818cf8" font-family="Inter,sans-serif" font-size="10" font-weight="700">📍 Old City<tspan fill="#64748b" font-weight="400">, HYDERABAD</tspan></text>
+  <text x="76" y="438" fill="white" font-family="Inter,sans-serif" font-size="15" font-weight="800">Charminar</text>
+  <!-- Price bar -->
+  <rect x="72" y="450" width="316" height="32" rx="8" fill="rgba(2,6,23,.5)" stroke="#1e293b" stroke-width=".5"/>
+  <text x="86" y="471" fill="#34d399" font-family="Inter,sans-serif" font-size="11" font-weight="700">💰 ₹50</text>
+  <text x="320" y="471" fill="#64748b" font-family="Inter,sans-serif" font-size="10" text-anchor="end">🕐 09:30 – 17:30</text>
+  <!-- Explanation -->
+  <rect x="72" y="490" width="316" height="52" rx="8" fill="rgba(49,46,129,.15)" stroke="rgba(99,102,241,.15)" stroke-width=".5"/>
+  <text x="84" y="506" fill="#a5b4fc" font-family="Inter,sans-serif" font-size="10">ℹ️ Top-rated heritage monument matching</text>
+  <text x="84" y="520" fill="#a5b4fc" font-family="Inter,sans-serif" font-size="10">history &amp; photography interests.</text>
+  <rect x="84" y="527" width="55" height="12" rx="3" fill="rgba(6,78,59,.5)" stroke="rgba(16,185,129,.25)" stroke-width=".5"/>
+  <text x="90" y="536" fill="#6ee7b7" font-family="Inter,sans-serif" font-size="7" font-weight="600">✓ History</text>
+  <rect x="144" y="527" width="82" height="12" rx="3" fill="rgba(6,78,59,.5)" stroke="rgba(16,185,129,.25)" stroke-width=".5"/>
+  <text x="150" y="536" fill="#6ee7b7" font-family="Inter,sans-serif" font-size="7" font-weight="600">✓ Photography</text>
+  <!-- Footer -->
+  <line x1="72" y1="555" x2="388" y2="555" stroke="#1e293b" stroke-width=".5"/>
+  <text x="86" y="572" fill="#64748b" font-family="Inter,sans-serif" font-size="9">🛡️ Google Places API</text>
+  <rect x="300" y="560" width="48" height="22" rx="6" fill="rgba(49,46,129,.5)" stroke="rgba(99,102,241,.4)" stroke-width=".5"/>
+  <text x="310" y="575" fill="#a5b4fc" font-family="Inter,sans-serif" font-size="9" font-weight="600">🔗 Graph</text>
+  <rect x="352" y="560" width="50" height="22" rx="6" fill="#1e293b"/>
+  <text x="358" y="575" fill="#e2e8f0" font-family="Inter,sans-serif" font-size="9" font-weight="600">Details →</text>
+
+  <!-- Card 2: Hussain Sagar -->
+  <rect x="430" y="230" width="340" height="420" rx="16" fill="#0f172a" stroke="#1e293b" stroke-width="1"/>
+  <rect x="430" y="230" width="340" height="160" rx="16" fill="url(#cardGrad2)"/>
+  <text x="600" y="310" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="36">🌅</text>
+  <text x="600" y="340" text-anchor="middle" fill="rgba(255,255,255,.5)" font-family="Inter,sans-serif" font-size="10" font-weight="700">LAKE &amp; WATERFRONT</text>
+  <rect x="442" y="242" width="90" height="18" rx="4" fill="rgba(2,6,23,.8)" stroke="rgba(100,116,139,.3)" stroke-width=".5"/>
+  <text x="450" y="255" fill="white" font-family="Inter,sans-serif" font-size="8" font-weight="800">LAKE WATERFRONT</text>
+  <rect x="660" y="242" width="100" height="18" rx="10" fill="rgba(49,46,129,.8)" stroke="rgba(99,102,241,.4)" stroke-width=".5"/>
+  <text x="672" y="255" fill="#a5b4fc" font-family="Inter,sans-serif" font-size="8" font-weight="800">MODERATE MATCH</text>
+  <rect x="680" y="266" width="55" height="18" rx="10" fill="rgba(2,6,23,.8)" stroke="rgba(245,158,11,.3)" stroke-width=".5"/>
+  <text x="688" y="279" fill="#fcd34d" font-family="Inter,sans-serif" font-size="9" font-weight="800">★ 4.3</text>
+  <text x="446" y="415" fill="#818cf8" font-family="Inter,sans-serif" font-size="10" font-weight="700">📍 Tank Bund<tspan fill="#64748b" font-weight="400">, HYDERABAD</tspan></text>
+  <text x="446" y="438" fill="white" font-family="Inter,sans-serif" font-size="15" font-weight="800">Hussain Sagar Lake</text>
+  <rect x="442" y="450" width="316" height="32" rx="8" fill="rgba(2,6,23,.5)" stroke="#1e293b" stroke-width=".5"/>
+  <text x="456" y="471" fill="#34d399" font-family="Inter,sans-serif" font-size="11" font-weight="700">💰 Free Admission</text>
+  <text x="692" y="471" fill="#64748b" font-family="Inter,sans-serif" font-size="10" text-anchor="end">🕐 Open 24h</text>
+  <rect x="442" y="490" width="316" height="52" rx="8" fill="rgba(49,46,129,.15)" stroke="rgba(99,102,241,.15)" stroke-width=".5"/>
+  <text x="454" y="506" fill="#a5b4fc" font-family="Inter,sans-serif" font-size="10">ℹ️ Romantic lakeside promenade with</text>
+  <text x="454" y="520" fill="#a5b4fc" font-family="Inter,sans-serif" font-size="10">boating. Ideal for evening visits.</text>
+  <rect x="454" y="527" width="62" height="12" rx="3" fill="rgba(6,78,59,.5)" stroke="rgba(16,185,129,.25)" stroke-width=".5"/>
+  <text x="460" y="536" fill="#6ee7b7" font-family="Inter,sans-serif" font-size="7" font-weight="600">✓ Romantic</text>
+  <rect x="520" y="527" width="50" height="12" rx="3" fill="rgba(6,78,59,.5)" stroke="rgba(16,185,129,.25)" stroke-width=".5"/>
+  <text x="526" y="536" fill="#6ee7b7" font-family="Inter,sans-serif" font-size="7" font-weight="600">✓ Scenic</text>
+  <rect x="575" y="527" width="60" height="12" rx="3" fill="rgba(6,78,59,.5)" stroke="rgba(16,185,129,.25)" stroke-width=".5"/>
+  <text x="581" y="536" fill="#6ee7b7" font-family="Inter,sans-serif" font-size="7" font-weight="600">✓ Free Entry</text>
+  <line x1="442" y1="555" x2="758" y2="555" stroke="#1e293b" stroke-width=".5"/>
+  <text x="456" y="572" fill="#64748b" font-family="Inter,sans-serif" font-size="9">🛡️ WanderGraph Seed</text>
+
+  <!-- Card 3: Sensō-ji (Tokyo) -->
+  <rect x="800" y="230" width="340" height="420" rx="16" fill="#0f172a" stroke="#1e293b" stroke-width="1"/>
+  <rect x="800" y="230" width="340" height="160" rx="16" fill="url(#cardGrad3)"/>
+  <text x="970" y="310" text-anchor="middle" fill="white" font-family="Inter,sans-serif" font-size="36">⛩️</text>
+  <text x="970" y="340" text-anchor="middle" fill="rgba(255,255,255,.5)" font-family="Inter,sans-serif" font-size="10" font-weight="700">TEMPLE / SHRINE</text>
+  <rect x="812" y="242" width="72" height="18" rx="4" fill="rgba(2,6,23,.8)" stroke="rgba(100,116,139,.3)" stroke-width=".5"/>
+  <text x="820" y="255" fill="white" font-family="Inter,sans-serif" font-size="8" font-weight="800">TEMPLE SHRINE</text>
+  <rect x="1042" y="242" width="88" height="18" rx="10" fill="rgba(6,78,59,.8)" stroke="rgba(16,185,129,.4)" stroke-width=".5"/>
+  <text x="1057" y="255" fill="#6ee7b7" font-family="Inter,sans-serif" font-size="8" font-weight="800">HIGH MATCH</text>
+  <rect x="1054" y="266" width="55" height="18" rx="10" fill="rgba(2,6,23,.8)" stroke="rgba(245,158,11,.3)" stroke-width=".5"/>
+  <text x="1062" y="279" fill="#fcd34d" font-family="Inter,sans-serif" font-size="9" font-weight="800">★ 4.6</text>
+  <text x="816" y="415" fill="#818cf8" font-family="Inter,sans-serif" font-size="10" font-weight="700">📍 Asakusa<tspan fill="#64748b" font-weight="400">, TOKYO</tspan></text>
+  <text x="816" y="438" fill="white" font-family="Inter,sans-serif" font-size="15" font-weight="800">Sensō-ji Temple</text>
+  <rect x="812" y="450" width="316" height="32" rx="8" fill="rgba(2,6,23,.5)" stroke="#1e293b" stroke-width=".5"/>
+  <text x="826" y="471" fill="#34d399" font-family="Inter,sans-serif" font-size="11" font-weight="700">💰 Free Admission</text>
+  <text x="1062" y="471" fill="#64748b" font-family="Inter,sans-serif" font-size="10" text-anchor="end">🕐 06:00 – 17:00</text>
+  <rect x="812" y="490" width="316" height="52" rx="8" fill="rgba(49,46,129,.15)" stroke="rgba(99,102,241,.15)" stroke-width=".5"/>
+  <text x="824" y="506" fill="#a5b4fc" font-family="Inter,sans-serif" font-size="10">ℹ️ Tokyo's oldest temple with the iconic</text>
+  <text x="824" y="520" fill="#a5b4fc" font-family="Inter,sans-serif" font-size="10">Kaminarimon gate. A must-visit.</text>
+  <rect x="824" y="527" width="58" height="12" rx="3" fill="rgba(6,78,59,.5)" stroke="rgba(16,185,129,.25)" stroke-width=".5"/>
+  <text x="830" y="536" fill="#6ee7b7" font-family="Inter,sans-serif" font-size="7" font-weight="600">✓ Spiritual</text>
+  <rect x="886" y="527" width="58" height="12" rx="3" fill="rgba(6,78,59,.5)" stroke="rgba(16,185,129,.25)" stroke-width=".5"/>
+  <text x="892" y="536" fill="#6ee7b7" font-family="Inter,sans-serif" font-size="7" font-weight="600">✓ Cultural</text>
+  <line x1="812" y1="555" x2="1128" y2="555" stroke="#1e293b" stroke-width=".5"/>
+  <text x="826" y="572" fill="#64748b" font-family="Inter,sans-serif" font-size="9">🛡️ Google Places API</text>
+</svg>
+

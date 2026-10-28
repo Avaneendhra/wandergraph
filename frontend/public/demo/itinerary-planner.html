@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WanderGraph — AI Itinerary Planner Demo</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #020617; color: #f1f5f9;
+      display: flex; flex-direction: column; height: 100vh;
+    }
+
+    /* Header */
+    header {
+      height: 56px; border-bottom: 1px solid #1e293b; background: rgba(2,6,23,.92);
+      backdrop-filter: blur(12px); display: flex; align-items: center;
+      padding: 0 20px; justify-content: space-between; flex-shrink: 0; z-index: 10;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .logo {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; box-shadow: 0 4px 12px rgba(99,102,241,.3);
+    }
+    .brand h1 { font-size: 18px; font-weight: 800; }
+    .brand h1 span { color: #818cf8; }
+    .tag { font-size: 9px; text-transform: uppercase; font-weight: 700; padding: 2px 7px;
+      border-radius: 4px; background: rgba(249,115,22,.1); border: 1px solid rgba(249,115,22,.25);
+      color: #fb923c; letter-spacing: .6px; }
+    .nav-links { display: flex; gap: 8px; }
+    .nav-links a {
+      padding: 6px 12px; border-radius: 8px; border: 1px solid #1e293b; background: #0f172a;
+      color: #94a3b8; font-size: 12px; font-weight: 600; text-decoration: none; transition: all .15s;
+    }
+    .nav-links a:hover { border-color: #6366f1; color: white; }
+
+    /* Main Layout */
+    .layout { display: flex; flex: 1; overflow: hidden; }
+
+    /* Chat Panel */
+    .chat-panel {
+      width: 420px; border-right: 1px solid #1e293b; display: flex; flex-direction: column;
+      background: #0f172a; flex-shrink: 0;
+    }
+    .chat-header {
+      padding: 14px 16px; border-bottom: 1px solid #1e293b;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .chat-header h2 { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+    .chat-header .ai-badge {
+      font-size: 9px; font-weight: 700; color: #fb923c; background: rgba(249,115,22,.1);
+      border: 1px solid rgba(249,115,22,.25); padding: 2px 6px; border-radius: 4px;
+    }
+    .city-select {
+      padding: 4px 8px; border-radius: 6px; background: #020617; border: 1px solid #334155;
+      color: #94a3b8; font-size: 11px; font-weight: 600;
+    }
+
+    .messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .msg {
+      max-width: 90%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.5;
+    }
+    .msg.user {
+      align-self: flex-end; background: #6366f1; color: white; border-bottom-right-radius: 4px;
+    }
+    .msg.bot {
+      align-self: flex-start; background: #1e293b; color: #e2e8f0; border-bottom-left-radius: 4px;
+    }
+
+    .chat-input {
+      padding: 12px; border-top: 1px solid #1e293b; display: flex; gap: 8px;
+    }
+    .chat-input input {
+      flex: 1; padding: 10px 14px; border-radius: 12px; background: #020617;
+      border: 1px solid #334155; color: white; font-size: 13px; outline: none;
+    }
+    .chat-input input:focus { border-color: #6366f1; }
+    .chat-input button {
+      padding: 10px 18px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      color: white; font-weight: 700; font-size: 13px; cursor: pointer;
+    }
+
+    /* Itinerary Panel */
+    .itinerary-panel { flex: 1; overflow-y: auto; padding: 24px; }
+    .itin-header { margin-bottom: 20px; }
+    .itin-header h2 { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+    .itin-header h2 span { color: #818cf8; }
+    .itin-meta { display: flex; gap: 12px; flex-wrap: wrap; }
+    .meta-pill {
+      display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600;
+      padding: 4px 10px; border-radius: 8px; background: #0f172a; border: 1px solid #1e293b;
+      color: #94a3b8;
+    }
+
+    .timeline { display: flex; flex-direction: column; gap: 0; position: relative; }
+    .timeline::before {
+      content: ''; position: absolute; left: 28px; top: 20px; bottom: 20px;
+      width: 2px; background: linear-gradient(180deg, #6366f1, #a855f7, #ec4899);
+      border-radius: 2px;
+    }
+
+    .stop-card {
+      display: flex; gap: 16px; padding: 16px 0; position: relative;
+    }
+    .stop-marker {
+      width: 56px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .stop-num {
+      width: 28px; height: 28px; border-radius: 50%; background: #6366f1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: white; z-index: 2;
+      box-shadow: 0 0 12px rgba(99,102,241,.4);
+    }
+    .stop-time { font-size: 10px; font-weight: 700; color: #818cf8; text-align: center; }
+
+    .stop-content {
+      flex: 1; padding: 14px 16px; border-radius: 14px; background: #0f172a;
+      border: 1px solid #1e293b; transition: border-color .15s;
+    }
+    .stop-content:hover { border-color: rgba(99,102,241,.4); }
+    .stop-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+    .stop-name { font-size: 15px; font-weight: 800; color: white; }
+    .stop-duration {
+      font-size: 10px; font-weight: 700; color: #818cf8; background: rgba(99,102,241,.1);
+      border: 1px solid rgba(99,102,241,.2); padding: 2px 8px; border-radius: 6px; white-space: nowrap;
+    }
+    .stop-purpose { font-size: 12px; color: #94a3b8; line-height: 1.4; margin-bottom: 8px; }
+    .stop-details { display: flex; gap: 10px; flex-wrap: wrap; }
+    .stop-detail {
+      display: flex; align-items: center; gap: 4px; font-size: 11px; color: #64748b;
+    }
+    .stop-detail .val { color: #94a3b8; font-weight: 600; }
+    .stop-actions { display: flex; gap: 6px; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(30,41,59,.5); }
+    .stop-actions button {
+      padding: 4px 10px; border-radius: 6px; border: 1px solid #334155; background: transparent;
+      color: #94a3b8; font-size: 10px; font-weight: 600; cursor: pointer; transition: all .15s;
+    }
+    .stop-actions button:hover { border-color: #6366f1; color: #c7d2fe; }
+    .alt-options {
+      display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap;
+    }
+    .alt-pill {
+      font-size: 9px; font-weight: 600; color: #64748b; background: #020617;
+      border: 1px solid #1e293b; padding: 2px 8px; border-radius: 10px; cursor: pointer;
+      transition: all .15s;
+    }
+    .alt-pill:hover { border-color: #6366f1; color: #818cf8; }
+
+    /* Feasibility Note */
+    .feasibility {
+      margin-top: 20px; padding: 12px 16px; border-radius: 14px;
+      background: rgba(16,185,129,.06); border: 1px solid rgba(16,185,129,.2);
+      font-size: 12px; color: #6ee7b7; line-height: 1.5;
+    }
+    .feasibility b { color: #34d399; }
+
+    /* Total Spend */
+    .total-spend {
+      margin-top: 16px; padding: 14px 16px; border-radius: 14px;
+      background: linear-gradient(135deg, rgba(99,102,241,.08), rgba(168,85,247,.06));
+      border: 1px solid rgba(99,102,241,.2);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .total-spend .label { font-size: 12px; font-weight: 700; color: #94a3b8; }
+    .total-spend .amount { font-size: 20px; font-weight: 900; color: #818cf8; }
+
+    @media (max-width: 860px) {
+      .layout { flex-direction: column; }
+      .chat-panel { width: 100%; height: 45vh; }
+      .itinerary-panel { height: 55vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="logo">🧭</div>
+      <h1>Wander<span>Graph</span></h1>
+      <span class="tag">AI Itinerary</span>
+    </div>
+    <div class="nav-links">
+      <a href="place-discovery.html">🗺️ Discovery</a>
+      <a href="knowledge-graph.html">🔗 Graph</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Chat Panel -->
+    <div class="chat-panel">
+      <div class="chat-header">
+        <h2>🤖 AI Concierge <span class="ai-badge">Gemini 3.5 Flash-Lite</span></h2>
+        <select class="city-select" id="citySelect">
+          <option value="hyderabad">🇮🇳 Hyderabad</option>
+          <option value="kyoto" selected>🇯🇵 Kyoto</option>
+          <option value="tokyo">🇯🇵 Tokyo</option>
+          <option value="bengaluru">🇮🇳 Bengaluru</option>
+        </select>
+      </div>
+      <div class="messages" id="messages">
+        <div class="msg bot">
+          👋 Welcome to WanderGraph AI Itinerary Planner! I'm your personal travel concierge powered by Google Gemini.<br><br>
+          Tell me about your trip — who are you traveling with, your budget, and what you'd like to experience. I'll craft a personalized day plan!
+        </div>
+        <div class="msg user">
+          Plan a full day in Kyoto for me and my partner. We love temples, nature walks, and authentic food. Budget around ¥8,000 total.
+        </div>
+        <div class="msg bot">
+          ✨ I've crafted a <b>Romantic Kyoto Heritage Trail</b> for you and your partner! It covers Kyoto's most stunning temples, a peaceful bamboo walk, and authentic cuisine — all within ¥8,000.<br><br>
+          Check out the timeline on the right →<br><br>
+          You can tap <b>Replace</b> on any stop to swap it for alternatives. Want to adjust anything?
+        </div>
+        <div class="msg user">
+          This looks amazing! Can we add some time for tea?
+        </div>
+        <div class="msg bot">
+          Great idea! I've incorporated a traditional matcha tea experience at a historic tea house in Gion between Kiyomizu-dera and the Bamboo Grove. The updated itinerary is on the right. ☕🍵
+        </div>
+      </div>
+      <div class="chat-input">
+        <input type="text" placeholder="Ask: 'Add a shopping stop' or 'Replace stop 3'" id="chatInput" />
+        <button onclick="sendDemo()">Send</button>
+      </div>
+    </div>
+
+    <!-- Itinerary Panel -->
+    <div class="itinerary-panel">
+      <div class="itin-header">
+        <h2>🗾 Romantic <span>Kyoto Heritage Trail</span></h2>
+        <div class="itin-meta">
+          <div class="meta-pill">📅 Full Day</div>
+          <div class="meta-pill">👫 Couples</div>
+          <div class="meta-pill">🎌 Kyoto, Japan</div>
+          <div class="meta-pill">💴 Budget: ¥8,000</div>
+          <div class="meta-pill">🕐 ~10 hours</div>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <!-- Stop 1 -->
+        <div class="stop-card">
+          <div class="stop-marker">
+            <div class="stop-num">1</div>
+            <div class="stop-time">07:00</div>
+          </div>
+          <div class="stop-content">
+            <div class="stop-top">
+              <div class="stop-name">⛩️ Fushimi Inari Shrine</div>
+              <div class="stop-duration">2h 30m</div>
+            </div>
+            <div class="stop-purpose">Walk through thousands of iconic vermillion torii gates at sunrise. Hike to the summit for panoramic views of Kyoto. Best experienced in the quiet early morning.</div>
+            <div class="stop-details">
+              <div class="stop-detail">💰 <span class="val">Free</span></div>
+              <div class="stop-detail">🕐 <span class="val">Open 24h</span></div>
+              <div class="stop-detail">📍 <span class="val">Fushimi</span></div>
+              <div class="stop-detail">⭐ <span class="val">4.8 (190K)</span></div>
+            </div>
+            <div class="stop-actions">
+              <button>🔄 Replace</button>
+              <button onclick="window.open('knowledge-graph.html','_blank')">🔗 Explore in Graph</button>
+            </div>
+            <div class="alt-options">
+              <span class="alt-pill">Tofuku-ji Temple</span>
+              <span class="alt-pill">Daigo-ji Temple</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stop 2 -->
+        <div class="stop-card">
+          <div class="stop-marker">
+            <div class="stop-num">2</div>
+            <div class="stop-time">10:00</div>
+          </div>
+          <div class="stop-content">
+            <div class="stop-top">
+              <div class="stop-name">🏯 Kiyomizu-dera Temple</div>
+              <div class="stop-duration">1h 30m</div>
+            </div>
+            <div class="stop-purpose">Visit the iconic wooden stage perched on a hillside with breathtaking views. Walk through the charming Higashiyama streets to reach the temple.</div>
+            <div class="stop-details">
+              <div class="stop-detail">💰 <span class="val">¥400</span></div>
+              <div class="stop-detail">🕐 <span class="val">06:00 – 18:00</span></div>
+              <div class="stop-detail">📍 <span class="val">Higashiyama</span></div>
+              <div class="stop-detail">⭐ <span class="val">4.6 (102K)</span></div>
+            </div>
+            <div class="stop-actions">
+              <button>🔄 Replace</button>
+              <button onclick="window.open('knowledge-graph.html','_blank')">🔗 Explore in Graph</button>
+            </div>
+            <div class="alt-options">
+              <span class="alt-pill">Sanjūsangen-dō</span>
+              <span class="alt-pill">Kodai-ji Temple</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stop 3 -->
+        <div class="stop-card">
+          <div class="stop-marker">
+            <div class="stop-num">3</div>
+            <div class="stop-time">12:00</div>
+          </div>
+          <div class="stop-content">
+            <div class="stop-top">
+              <div class="stop-name">🍜 Nishiki Market Lunch</div>
+              <div class="stop-duration">1h 15m</div>
+            </div>
+            <div class="stop-purpose">Explore "Kyoto's Kitchen" — 5 blocks of 100+ stalls. Try fresh sashimi, pickled vegetables, matcha sweets, and yuba (tofu skin) dishes.</div>
+            <div class="stop-details">
+              <div class="stop-detail">💰 <span class="val">~¥2,000</span></div>
+              <div class="stop-detail">🕐 <span class="val">09:00 – 17:00</span></div>
+              <div class="stop-detail">📍 <span class="val">Central Kyoto</span></div>
+              <div class="stop-detail">⭐ <span class="val">4.4 (55K)</span></div>
+            </div>
+            <div class="stop-actions">
+              <button>🔄 Replace</button>
+              <button onclick="window.open('knowledge-graph.html','_blank')">🔗 Explore in Graph</button>
+            </div>
+            <div class="alt-options">
+              <span class="alt-pill">Omen Noodles</span>
+              <span class="alt-pill">Pontocho Alley</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stop 4 -->
+        <div class="stop-card">
+          <div class="stop-marker">
+            <div class="stop-num">4</div>
+            <div class="stop-time">13:30</div>
+          </div>
+          <div class="stop-content">
+            <div class="stop-top">
+              <div class="stop-name">🍵 Camellia Tea House (Gion)</div>
+              <div class="stop-duration">45m</div>
+            </div>
+            <div class="stop-purpose">Traditional matcha tea ceremony experience in a century-old Gion machiya townhouse. Watch Geisha district culture while sipping premium whisked matcha.</div>
+            <div class="stop-details">
+              <div class="stop-detail">💰 <span class="val">~¥1,500</span></div>
+              <div class="stop-detail">🕐 <span class="val">10:00 – 18:00</span></div>
+              <div class="stop-detail">📍 <span class="val">Gion</span></div>
+              <div class="stop-detail">⭐ <span class="val">4.5 (8K)</span></div>
+            </div>
+            <div class="stop-actions">
+              <button>🔄 Replace</button>
+              <button onclick="window.open('knowledge-graph.html','_blank')">🔗 Explore in Graph</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stop 5 -->
+        <div class="stop-card">
+          <div class="stop-marker">
+            <div class="stop-num">5</div>
+            <div class="stop-time">15:00</div>
+          </div>
+          <div class="stop-content">
+            <div class="stop-top">
+              <div class="stop-name">🏯 Kinkaku-ji (Golden Pavilion)</div>
+              <div class="stop-duration">1h</div>
+            </div>
+            <div class="stop-purpose">Admire the stunning gold-leaf Zen temple reflected in the mirror pond. One of Kyoto's most photographed UNESCO World Heritage landmarks.</div>
+            <div class="stop-details">
+              <div class="stop-detail">💰 <span class="val">¥500</span></div>
+              <div class="stop-detail">🕐 <span class="val">09:00 – 17:00</span></div>
+              <div class="stop-detail">📍 <span class="val">Kita-ku</span></div>
+              <div class="stop-detail">⭐ <span class="val">4.7 (115K)</span></div>
+            </div>
+            <div class="stop-actions">
+              <button>🔄 Replace</button>
+              <button onclick="window.open('knowledge-graph.html','_blank')">🔗 Explore in Graph</button>
+            </div>
+            <div class="alt-options">
+              <span class="alt-pill">Ryōan-ji</span>
+              <span class="alt-pill">Ginkaku-ji</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stop 6 -->
+        <div class="stop-card">
+          <div class="stop-marker">
+            <div class="stop-num">6</div>
+            <div class="stop-time">16:30</div>
+          </div>
+          <div class="stop-content">
+            <div class="stop-top">
+              <div class="stop-name">🎋 Arashiyama Bamboo Grove</div>
+              <div class="stop-duration">1h 30m</div>
+            </div>
+            <div class="stop-purpose">End the day with a magical walk through the towering bamboo forest as golden light filters through the canopy. Cross the Togetsukyo Bridge at sunset.</div>
+            <div class="stop-details">
+              <div class="stop-detail">💰 <span class="val">Free</span></div>
+              <div class="stop-detail">🕐 <span class="val">Open 24h</span></div>
+              <div class="stop-detail">📍 <span class="val">Arashiyama</span></div>
+              <div class="stop-detail">⭐ <span class="val">4.5 (88K)</span></div>
+            </div>
+            <div class="stop-actions">
+              <button>🔄 Replace</button>
+              <button onclick="window.open('knowledge-graph.html','_blank')">🔗 Explore in Graph</button>
+            </div>
+            <div class="alt-options">
+              <span class="alt-pill">Monkey Park</span>
+              <span class="alt-pill">Tenryu-ji</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feasibility Note -->
+      <div class="feasibility">
+        <b>🚆 Travel Feasibility:</b> All stops are connected by Kyoto City Bus (¥230/ride) or JR lines. The route is geographically optimized: Fushimi → Higashiyama → Central → Gion → Kita-ku → Arashiyama. Total transit time ~90 min. Consider a Kyoto Bus Day Pass (¥700) for unlimited rides.
+      </div>
+
+      <!-- Total Spend -->
+      <div class="total-spend">
+        <div class="label">💴 Estimated Total Spend (2 people)</div>
+        <div class="amount">¥7,500</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+function sendDemo() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const msgs = document.getElementById('messages');
+  msgs.innerHTML += `<div class="msg user">${text}</div>`;
+  input.value = '';
+
+  setTimeout(() => {
+    msgs.innerHTML += `<div class="msg bot">That's a great idea! I've noted your preference. In a live session, I'd update the itinerary timeline in real-time using the Knowledge Graph and Gemini AI. 🧭✨<br><br>Try the full app to see it in action!</div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 800);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+document.getElementById('chatInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendDemo();
+});
+</script>
+</body>
+</html>
+
