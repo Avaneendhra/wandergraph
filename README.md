@@ -10,6 +10,7 @@ WanderGraph helps people discover places, activities, experiences, and destinati
 ![AI Itinerary](https://img.shields.io/badge/AI-Google%20Gemini%203.5%20Flash--Lite-orange)
 ![Tests](https://img.shields.io/badge/Tests-24%20Pytest%20%7C%207%20Vitest%20Passing-emerald)
 ![Deployment](https://img.shields.io/badge/Deploy-Vercel%20Ready-black)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-brightgreen)](https://avaneendhra.github.io/wandergraph/)
 
 ---
 
@@ -34,14 +35,16 @@ WanderGraph helps people discover places, activities, experiences, and destinati
 
 ## 🎮 Live Interactive Demos
 
+**Live on GitHub Pages**: [**https://avaneendhra.github.io/wandergraph/**](https://avaneendhra.github.io/wandergraph/)
+
 **No backend required** — all demos run entirely in-browser with embedded mock data.
 
-| Demo | Description | Open |
-|------|-------------|------|
-| 🔗 **Knowledge Graph Explorer** | Interactive Cytoscape.js graph with CoSE/concentric/tree/circle layouts, node search, inspector panel, city filtering, and graph statistics | [`demo/knowledge-graph.html`](demo/knowledge-graph.html) |
-| 🗺️ **Place Discovery Engine** | Browse scored recommendations across 4 cities with category filters, match confidence badges, price estimates, and provenance tracking | [`demo/place-discovery.html`](demo/place-discovery.html) |
-| 🤖 **AI Itinerary Planner** | Conversational trip planner with structured timeline cards, cost estimates, replacement options, and transit feasibility notes | [`demo/itinerary-planner.html`](demo/itinerary-planner.html) |
-| 📋 **Demo Hub** | Landing page linking all demos with tech stack overview | [`demo/index.html`](demo/index.html) |
+| Demo | Description | Local / GitHub | Live Demo |
+|------|-------------|----------------|-----------|
+| 🔗 **Knowledge Graph Explorer** | Interactive Cytoscape.js graph with CoSE/concentric/tree/circle layouts, node search, inspector panel, city filtering, and graph statistics | [`demo/knowledge-graph.html`](demo/knowledge-graph.html) | [Launch Demo](https://avaneendhra.github.io/wandergraph/demo/knowledge-graph.html) |
+| 🗺️ **Place Discovery Engine** | Browse scored recommendations across 4 cities with category filters, match confidence badges, price estimates, and provenance tracking | [`demo/place-discovery.html`](demo/place-discovery.html) | [Launch Demo](https://avaneendhra.github.io/wandergraph/demo/place-discovery.html) |
+| 🤖 **AI Itinerary Planner** | Conversational trip planner with structured timeline cards, cost estimates, replacement options, and transit feasibility notes | [`demo/itinerary-planner.html`](demo/itinerary-planner.html) | [Launch Demo](https://avaneendhra.github.io/wandergraph/demo/itinerary-planner.html) |
+| 📋 **Demo Hub** | Landing page linking all demos with tech stack overview | [`demo/index.html`](demo/index.html) | [Launch Demo](https://avaneendhra.github.io/wandergraph/demo/index.html) |
 
 > **Tip:** Open any `demo/*.html` file directly in your browser — no `npm install` or server needed!
 
